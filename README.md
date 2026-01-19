@@ -14,8 +14,15 @@
 ---
 
 ## Team information
-- Team name: 
-- Team members:
+- Team name: JumPeace_g3
+- Team members: Elise Pitre (ElisePitre)
+                Jian Min Lim (JianMin-Lim)
+                Puneeet Chaudhary (puneetchaudharyy)
+                Matthew Breen (mztttt)
+                Eli Webster (EliWebster)
+                Amina Hassan (ahassana09)
+                Cole Burgi (CBurgi)
+                Umang Deval (umangdeval)
 
 ## Project management setup
 - With your assigned group, set-up a Team Project website on Trello(trello.com) to manage your project.
