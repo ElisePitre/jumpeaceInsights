@@ -23,6 +23,7 @@
                 Amina Hassan (ahassana09)
                 Cole Burgi (CBurgi)
                 Umang Deval (umangdeval)
+- Trello Board: https://trello.com/w/cis3750group32/
 
 ## Project management setup
 - With your assigned group, set-up a Team Project website on Trello(trello.com) to manage your project.
