@@ -29,3 +29,16 @@
 - With your assigned group, set-up a Team Project website on Trello(trello.com) to manage your project.
 - Add a link to your Trello board here.
 - Share your board with the 3750 email (cis3750@socs.uoguelph.ca).
+
+# 1. Environment Setup
+
+## 1.1 Create Virtual Environment
+    In the main directory:
+    1. python3 -m venv .venv
+    2. .\.venv\Scripts\activate
+
+
+## 1.2 Install Dependencies
+
+    In the main directory
+    1. pip install -r requirements.txt
