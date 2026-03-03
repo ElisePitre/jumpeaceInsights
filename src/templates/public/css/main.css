@@ -15,10 +15,80 @@ body {
 	color: #0C1736;
 	
 }
-h1, h2, h3, h4, h5, h6, p, ul {
+h1, h2, h3, h4, h5, h6, ul {
 	margin: 0;
 	padding: 0;
 	color: #0C1736;
+}
+
+
+/* Home/abt page styling */
+.page-card {
+	max-width: 800px;
+	background-color: white;
+	width: 100%;
+	padding: 50px 60px;
+	border: 2px solid #0C1736;
+	box-shadow: 0 4px 12px rgba(12, 23, 54, 0.15);
+}
+
+.page-content {
+	margin-bottom: 40px;
+	line-height: 1.7;
+	font-size: 18px;
+}
+
+.page-title {
+	font-family: 'Montserrat', sans-serif;
+	font-size: 28px;
+	font-weight: 700;
+	color: #0C1736;
+	margin-bottom: 30px;
+	text-align: center;
+	letter-spacing: -0.5px;
+}
+
+.page-container {
+	min-height: 100vh;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;  
+	padding: 40px 20px;
+	background-color: #F7F7F7;
+  }
+
+.page-subtitle {
+	font-family: 'Montserrat', sans-serif;
+	font-size: 23px;
+	font-weight: 700;
+	color: #0C1736;
+	margin-bottom: 5px;
+	text-align: left;
+	letter-spacing: -0.5px;
+}
+
+.page-subtitle-two {
+	font-family: 'Montserrat', sans-serif;
+	font-size: 18px;
+	font-weight: 700;
+	color: #0C1736;
+	margin-bottom: 5px;
+	text-align: left;
+	letter-spacing: -0.5px;
+}
+
+.page-content ul {
+	list-style-position: outside;
+	padding-left: 0;
+	margin-left: 0;
+	margin-bottom: 10px;
+}
+  
+  .page-content li {
+	margin-left: 20px;   
+	margin-bottom: 1px;
+	line-height: 1.7;
 }
 
 /* Authentication Pages Styling */
@@ -197,3 +267,4 @@ h1, h2, h3, h4, h5, h6, p, ul {
 		font-size: 24px;
 	}
 }
+
