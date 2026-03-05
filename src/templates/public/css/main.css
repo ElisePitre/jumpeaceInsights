@@ -16,6 +16,7 @@ body {
 	
 }
 h1, h2, h3, h4, h5, h6, ul {
+	font-family: 'Montserrat', sans-serif;
 	margin: 0;
 	padding: 0;
 	color: #0C1736;
@@ -28,6 +29,16 @@ h1, h2, h3, h4, h5, h6, ul {
 	background-color: white;
 	width: 100%;
 	padding: 50px 60px;
+	border: 2px solid #0C1736;
+	box-shadow: 0 4px 12px rgba(12, 23, 54, 0.15);
+}
+
+.result-card {
+	max-width: 800px;
+	background-color: white;
+	width: 100%;
+	padding: 10px 20px;
+	margin-bottom: 20px;
 	border: 2px solid #0C1736;
 	box-shadow: 0 4px 12px rgba(12, 23, 54, 0.15);
 }
