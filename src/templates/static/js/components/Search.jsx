@@ -25,6 +25,7 @@ export default class Search extends Component {
   componentDidMount() {
     this.getSearches("popular");
     this.getSearches("past");
+    this.getQuerySearch();
   }
 
   devMode = true;
@@ -32,6 +33,21 @@ export default class Search extends Component {
     past_searches: dev_past_searches,
     popular_searches: dev_popular_searches,
     search_results: dev_search_results
+  }
+
+  getQuerySearch = () => {
+    const hash = window.location.hash;
+    const queryString = hash.split('?')[1] || '';
+
+    const params = new URLSearchParams(queryString);
+
+    this.setState({
+      search_term: params.get('query') ?? ''
+    }, () => {
+      if (this.state.search_term !== '') {
+        this.handleSubmit();
+      }
+    })
   }
 
   handleSubmit = async (e) => {
@@ -75,11 +91,11 @@ export default class Search extends Component {
   }
 
   searchesMap = {
-    popular:{
+    popular: {
       title: "Popular",
       apiCall: "getPopularSearches"
     },
-    past:{
+    past: {
       title: "Past",
       apiCall: "getPastSearches"
     },
@@ -132,6 +148,16 @@ export default class Search extends Component {
         </ul>
       </div>
     );
+  }
+
+  results = () => {
+    return (
+      <div className='result-card'>
+        <h4 className='searches-header'>Results</h4>
+
+
+      </div>
+    )
   }
 
   searchChips = () => {
