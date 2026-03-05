@@ -1,11 +1,8 @@
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 export default function NavBar() {
-
   return (
     <header className="navbar">
-      <Link to="/" className="brand">Medicine4Youth Guelph</Link>
-
       <nav className="navlinks">
         <NavLink to="/">HOME</NavLink>
         <NavLink to="/about">ABOUT</NavLink>
