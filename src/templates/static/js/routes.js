@@ -5,6 +5,7 @@ import About from './components/About';
 import Login from './components/Login';
 import SignUp from './components/SignUp';
 import Help from './components/Help';
+import Account from './components/Account';
 
 export default (
   <HashRouter>
@@ -14,6 +15,7 @@ export default (
       <Route path='/help' component={Help} />
       <Route path='/login' component={Login} />
       <Route path='/signup' component={SignUp} />
+       <Route path='/account' component={Account} />
     </div>
   </HashRouter>
 );
