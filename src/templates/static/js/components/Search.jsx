@@ -6,6 +6,13 @@ const dev_past_searches = require("../../../public/dummy_data/past-searches.json
 const dev_popular_searches = require("../../../public/dummy_data/popular-searches.json");
 const dev_search_results = require("../../../public/dummy_data/search-results.json");
 
+const SEARCH_PARAMS = [
+  'search_term',
+  'destination_term',
+  'start_date',
+  'end_date',
+];
+
 export default class Search extends Component {
   constructor(props) {
     super(props);
@@ -25,7 +32,11 @@ export default class Search extends Component {
   componentDidMount() {
     this.getSearches("popular");
     this.getSearches("past");
-    this.getQuerySearch();
+    this.getQueryFromUrl();
+    window.addEventListener('hashchange', this.getQueryFromUrl);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('hashchange', this.getQueryFromUrl);
   }
 
   devMode = true;
@@ -34,23 +45,53 @@ export default class Search extends Component {
     popular_searches: dev_popular_searches,
     search_results: dev_search_results
   }
+  devGlobals = {
+    username: 'test-user',
+  }
 
-  getQuerySearch = () => {
+  getQueryFromUrl = () => {
     const hash = window.location.hash;
     const queryString = hash.split('?')[1] || '';
 
     const params = new URLSearchParams(queryString);
+    console.log(...[params.entries()]);
 
-    this.setState({
-      search_term: params.get('query') ?? ''
-    }, () => {
-      if (this.state.search_term !== '') {
-        this.handleSubmit();
+    SEARCH_PARAMS.forEach((param, index) => {
+      console.log(params.get(param), index);
+      if (params.get(param) && params.get(param) !== this.state[param]) {
+        this.setState({
+          [param]: params.get(param) ?? ''
+        }, () => {
+          if (this.state[param] !== '' && index == SEARCH_PARAMS.length - 1) {
+            this.handleSubmit();
+          }
+        })
       }
     })
   }
 
+  updateQueryInUrl = () => {
+    const hash = window.location.hash.split('?')[0]; // "#/search"
+
+    const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
+
+    SEARCH_PARAMS.forEach((param) => {
+      if (!params.get(param) || params.get(param) !== this.state[param]) {
+        params.set(param, this.state[param]);
+      }
+    })
+
+    const newHash = `${hash}?${params.toString()}`;
+
+    window.history.replaceState(null, '', newHash);
+  };
+
   handleSubmit = async (e) => {
+    if (e) {
+      this.updateQueryInUrl();
+    }
+    console.log(e)
+
     if (this.devMode) {
       this.setState({ search_results: this.devData.search_results.results });
       return;
@@ -140,9 +181,9 @@ export default class Search extends Component {
         <ul className="searches-list">
           {this.state[type + "_searches"].map((search, index) => (
             <li key={index}>
-              <a href={`/search?query=${encodeURIComponent(search)}`}>
+              <Link to={`/search?search_term=${encodeURIComponent(search)}`}>
                 {search}
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
@@ -153,9 +194,37 @@ export default class Search extends Component {
   results = () => {
     return (
       <div className='result-card'>
-        <h4 className='searches-header'>Results</h4>
-
-
+        <h4 className='searches-header'>Results: {this.state.search_results.search}</h4>
+        <div className="form-row" style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+          <div className="form-group" style={{ flex: 1 }}>
+            <div className='result-card'>
+              <h4 className='searches-header'>Top 5 Results</h4>
+              <ol className='searches-list'>
+                {this.state.search_results.vectors.map((result, index) => (
+                  <li key={index}>
+                    <Link to={`/search?search_term=${encodeURIComponent(result.word)}`}>
+                      {result.word}
+                    </Link>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
+          <div className="form-group" style={{ flex: 2 }}>
+            <div className='result-card'>
+              <h4 className='searches-header'>BAR CHART WILL GO HERE</h4>
+              <ol className='searches-list'>
+                {this.state.search_results.vectors.map((result, index) => (
+                  <li key={index}>
+                    <Link to={`/search?search_term=${encodeURIComponent(result.word)}`}>
+                      {result.word}
+                    </Link>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
+        </div>
       </div>
     )
   }
@@ -163,7 +232,16 @@ export default class Search extends Component {
   searchChips = () => {
     return (
       <div>
-        {this.searches('past')}
+        {
+          Object.keys(this.state.search_results).length !== 0
+          && this.state.search_results.search !== ""
+          && this.results()
+        }
+        {
+          this.devGlobals.username !== 'guest'
+          && this.state.past_searches.length !== 0
+          && this.searches('past')
+        }
         {this.searches('popular')}
       </div>
     );
@@ -173,12 +251,12 @@ export default class Search extends Component {
 
     return (
       <div className="page-container">
-        <div className="page-card">
+        <div className="large-page-card">
           <div className="auth-logo">
             <img src="/public/images/typefaceLogo.png" alt="Tinos logo" />
           </div>
 
-          <NavBar/>
+          <NavBar />
 
           <h2 className="auth-title">Search</h2>
 

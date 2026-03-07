@@ -33,6 +33,14 @@ h1, h2, h3, h4, h5, h6, ul {
 	box-shadow: 0 4px 12px rgba(12, 23, 54, 0.15);
 }
 
+.large-page-card {
+	background-color: white;
+	width: 100%;
+	padding: 50px 60px;
+	border: 2px solid #0C1736;
+	box-shadow: 0 4px 12px rgba(12, 23, 54, 0.15);
+}
+
 .result-card {
 	max-width: 800px;
 	background-color: white;

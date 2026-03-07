@@ -1,3 +1,12 @@
 {
-  "results": []
+  "results": {
+    "search": "women",
+    "vectors": [
+      {"word": "dren", "vector": 0.88},
+      {"word": "chill", "vector": 0.87},
+      {"word": "depreciation", "vector": 0.86},
+      {"word": "mits", "vector": 0.84},
+      {"word": "thread", "vector": 0.83}
+    ]
+  }
 }
