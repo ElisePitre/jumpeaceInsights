@@ -178,7 +178,7 @@ export default class Search extends Component {
             <img src="/public/images/typefaceLogo.png" alt="Tinos logo" />
           </div>
 
-          {/* <NavBar/> */}
+          <NavBar/>
 
           <h2 className="auth-title">Search</h2>
 
