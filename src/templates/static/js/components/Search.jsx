@@ -137,7 +137,7 @@ export default class Search extends Component {
     let search = false;
     SEARCH_PARAMS.forEach((param, index) => {
       console.log(params.get(param), index);
-      if (params.get(param) && params.get(param) !== this.state[param]) {
+      if (params.get(param) !== this.state[param]) {
         this.setState({
           [param]: params.get(param) ?? ''
         }, () => {
@@ -150,6 +150,8 @@ export default class Search extends Component {
     if (search) {
       console.log('search');
       this.handleSubmit();
+    }else {
+      this.setState({ search_results: {} });
     }
   }
 
