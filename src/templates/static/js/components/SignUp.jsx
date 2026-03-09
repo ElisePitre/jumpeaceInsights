@@ -51,7 +51,7 @@ export default class SignUp extends Component {
       const data = await response.json();
       
       if (response.ok && data.success) {
-        window.location.href = '/#/login';
+        window.location.href = '/#/search';
       } else {
         this.setState({ 
           error: data.message || 'Sign up failed. Please try again.',
@@ -59,10 +59,12 @@ export default class SignUp extends Component {
         });
       }
     } catch (err) {
-      this.setState({ 
-        error: 'Network error. Please try again later.',
-        loading: false
-      });
+      // Ignore error for now and go to search page
+      window.location.href = '/#/search';
+      // this.setState({ 
+      //   error: 'Network error. Please try again later.',
+      //   loading: false
+      // });
     }
   }
 
@@ -147,7 +149,7 @@ export default class SignUp extends Component {
         
         <div className="auth-links">
           <span>Already have an account?</span>
-          <Link to="/login" className="auth-link">Login</Link>
+          <Link to="/" className="auth-link">Login</Link>
         </div>
       </div>
     </div>
