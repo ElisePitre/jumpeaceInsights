@@ -1,6 +1,32 @@
-import React, { Component } from 'react';
+import React, { Component, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import NavBar from './NavBar';
+import { Bar } from 'react-chartjs-2';
+import WordCloud from "react-wordcloud";
+import * as htmlToImage from "html-to-image";
+
+export const chartOptions = {
+  responsive: true,
+  legend: false,
+  scales: {
+    yAxes: [{
+      ticks: {
+        min: 0.5
+      }
+    }]
+  }
+};
+export const mapOptions = {
+  options: {
+    rotations: 2,
+    rotationAngles: [-90, 0],
+    enableTooltip: true,
+    fontFamily: "montserrat",
+    fontSizes: [20, 30],
+    fontWeight: "bold",
+  },
+  size: [10, 50],
+};
 
 const dev_past_searches = require("../../../public/dummy_data/past-searches.json");
 const dev_popular_searches = require("../../../public/dummy_data/popular-searches.json");
@@ -26,7 +52,61 @@ export default class Search extends Component {
       popular_searches: [],
       past_searches: [],
       search_results: {},
+      visualizer_mode: 'bar', //bar, map
     };
+    this.barChartRef = React.createRef();
+    this.wordCloudRef = React.createRef();
+  }
+
+  getBarData() {
+    const sr = this.state.search_results;
+    if (!sr?.vectors) return { labels: [], datasets: [] };
+    return {
+      labels: sr.vectors.map(v => v.word),
+      datasets: [{ label: sr.search, data: sr.vectors.map(v => v.vector), backgroundColor: 'rgba(12,23,54,1)' }],
+    };
+  }
+  getMapData() {
+    const sr = this.state.search_results;
+    if (!sr?.vectors) return [];
+    return sr.vectors.map(v => {
+      return {
+        text: v.word,
+        value: v.vector,
+      }
+    });
+  }
+  downloadChart() {
+    if (!this.barChartRef.current) return;
+    console.log(this.barChartRef);
+    const chart = this.barChartRef.current.chartInstance; // Chart.js v2
+    const image = chart.toBase64Image();
+
+    const link = document.createElement('a');
+    link.href = image;
+    link.download = this.state.search_results.search + '-bar-graph.png';
+    link.click();
+  }
+  downloadMap() {
+    if (!this.wordCloudRef.current) return;
+
+    htmlToImage.toPng(this.wordCloudRef.current, {
+      pixelRatio: 2,
+      backgroundColor: '#fff', // optional
+    })
+      .then((dataUrl) => {
+        const link = document.createElement("a");
+    link.download = this.state.search_results.search + '-word-web.png';
+        link.href = dataUrl;
+        link.click();
+      })
+      .catch((err) => console.error(err));
+    // htmlToImage.toSvg(this.wordCloudRef.current).then((dataUrl) => {
+    //   const link = document.createElement('a');
+    //   link.href = dataUrl;
+    //   link.download = this.state.search_results.search + '-word-web.png';
+    //   link.click();
+    // });
   }
 
   componentDidMount() {
@@ -212,16 +292,40 @@ export default class Search extends Component {
           </div>
           <div className="form-group" style={{ flex: 2 }}>
             <div className='result-card'>
-              <h4 className='searches-header'>BAR CHART WILL GO HERE</h4>
-              <ol className='searches-list'>
-                {this.state.search_results.vectors.map((result, index) => (
-                  <li key={index}>
-                    <Link to={`/search?search_term=${encodeURIComponent(result.word)}`}>
-                      {result.word}
-                    </Link>
-                  </li>
-                ))}
-              </ol>
+              <div className="form-row" style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <button className='auth-button' onClick={() => this.setState({ visualizer_mode: 'bar' })}>
+                    Bar graph
+                  </button>
+                </div>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <button className='auth-button' onClick={() => this.setState({ visualizer_mode: 'map' })}>
+                    Word web
+                  </button>
+                </div>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <button className='auth-button' onClick={() => {
+                    if (this.state.visualizer_mode === 'bar') {
+                      this.downloadChart();
+                    } else {
+                      this.downloadMap();
+                    }
+                  }}>
+                    Download
+                  </button>
+                </div>
+              </div>
+
+              <h4 className='searches-header'>Visualizers</h4>
+              {this.state.visualizer_mode === 'bar' &&
+                <div style={{ height: 250 }}>
+                  <Bar ref={this.barChartRef} options={chartOptions} data={this.getBarData()} />
+                </div>}
+              {this.state.visualizer_mode === 'map' &&
+                <div ref={this.wordCloudRef} style={{ height: 250 }}>
+                  <WordCloud options={mapOptions.options} words={this.getMapData()} />
+                </div>
+              }
             </div>
           </div>
         </div>
