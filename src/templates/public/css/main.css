@@ -25,7 +25,7 @@ h1, h2, h3, h4, h5, h6, ul {
 
 /* Home/abt page styling */
 .page-card {
-	max-width: 800px;
+	max-width: 1000px;
 	background-color: white;
 	width: 100%;
 	padding: 50px 60px;
@@ -63,6 +63,7 @@ h1, h2, h3, h4, h5, h6, ul {
 	font-weight: 700;
 	color: #0C1736;
 	margin-bottom: 30px;
+	margin-top: 40px;
 	text-align: center;
 	letter-spacing: -0.5px;
 }
@@ -321,6 +322,7 @@ h1, h2, h3, h4, h5, h6, ul {
   width: 100%;
   border: 2px solid #232742;
   background: #f7f7f7;
+  margin-bottom: 40px;
 }
 
 .jp-navbar-top {
