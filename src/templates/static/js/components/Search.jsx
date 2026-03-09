@@ -10,8 +10,18 @@ export const chartOptions = {
   legend: false,
   scales: {
     yAxes: [{
-      ticks: {
-        min: 0.5
+      ticks: { min: 0.5 },
+      scaleLabel: {
+        display: true,
+        labelString: 'Closeness to search term',
+        fontStyle: 'bold'
+      }
+    }],
+    xAxes: [{
+      scaleLabel: {
+        display: true,
+        labelString: 'Related terms',
+        fontStyle: 'bold'
       }
     }]
   }
