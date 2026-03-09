@@ -1,9 +1,9 @@
 // This is the login page
 
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 
-export default class Login extends Component {
+class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -31,7 +31,7 @@ export default class Login extends Component {
       const data = await response.json();
       
       if (response.ok && data.success) {
-        window.location.href = '/#/search';
+        this.props.history.push('/search');
       } else {
         this.setState({ 
           error: data.message || 'Login failed. Please try again.',
@@ -40,7 +40,7 @@ export default class Login extends Component {
       }
     } catch (err) {
       // Ignore error for now and go to search page
-      window.location.href = '/#/search';
+      this.props.history.push('/search');
 
       // this.setState({ 
       //   error: 'Network error. Please try again later.',
@@ -103,3 +103,5 @@ export default class Login extends Component {
     );
   }
 }
+
+export default withRouter(Login);
