@@ -282,7 +282,7 @@ export default class Search extends Component {
             <div className='result-card'>
               <h4 className='searches-header'>Top 5 Results</h4>
               <ol className='searches-list'>
-                {this.state.search_results.vectors.map((result, index) => (
+                {this.state.search_results.vectors.slice(0, 5).map((result, index) => (
                   <li key={index}>
                     <Link to={`/search?search_term=${encodeURIComponent(result.word)}`}>
                       {result.word}
