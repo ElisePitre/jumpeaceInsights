@@ -11,14 +11,29 @@ export default class Account extends Component {
   }
 
   handleDelete = () => {
-    const confirmed = window.confirm("Are you sure you want to delete your account?");
+    const confirmed = window.confirm(
+      "Are you sure you want to delete your account?"
+    );
+
     if (confirmed) {
-      console.log("Delete account clicked");
+      window.alert("Your account has been deleted successfully.");
+
+      setTimeout(() => {
+        window.location.href = "/#/signup";
+      }, 300);
     }
   };
 
   handleLogOut = () => {
-    console.log("Log out clicked");
+    const confirmed = window.confirm("Are you sure you want to log out?");
+
+    if (confirmed) {
+      window.alert("You have been logged out successfully.");
+
+      setTimeout(() => {
+        window.location.href = "/#/";
+      }, 300);
+    }
   };
 
   render() {
@@ -38,17 +53,27 @@ export default class Account extends Component {
               </div>
 
               <div className="account-details">
-                <p><strong>Username:</strong> {username}</p>
-                <p><strong>Email:</strong> {email}</p>
+                <p>
+                  <strong>Username:</strong> {username}
+                </p>
+                <p>
+                  <strong>Email:</strong> {email}
+                </p>
               </div>
             </div>
 
             <div className="account-actions">
-              <button className="account-action-button danger-button" onClick={this.handleDelete}>
+              <button
+                className="account-action-button danger-button"
+                onClick={this.handleDelete}
+              >
                 Delete account
               </button>
 
-              <button className="account-action-button" onClick={this.handleLogOut}>
+              <button
+                className="account-action-button"
+                onClick={this.handleLogOut}
+              >
                 Log out
               </button>
             </div>
