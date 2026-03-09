@@ -78,7 +78,6 @@ export default class Search extends Component {
   }
   downloadChart() {
     if (!this.barChartRef.current) return;
-    console.log(this.barChartRef);
     const chart = this.barChartRef.current.chartInstance; // Chart.js v2
     const image = chart.toBase64Image();
 
@@ -134,20 +133,24 @@ export default class Search extends Component {
     const queryString = hash.split('?')[1] || '';
 
     const params = new URLSearchParams(queryString);
-    console.log(...[params.entries()]);
 
+    let search = false;
     SEARCH_PARAMS.forEach((param, index) => {
       console.log(params.get(param), index);
       if (params.get(param) && params.get(param) !== this.state[param]) {
         this.setState({
           [param]: params.get(param) ?? ''
         }, () => {
-          if (this.state[param] !== '' && index == SEARCH_PARAMS.length - 1) {
-            this.handleSubmit();
+          if (this.state[param] !== '') {
+              search = true;
           }
         })
       }
     })
+    if (search) {
+      console.log('search');
+      this.handleSubmit();
+    }
   }
 
   updateQueryInUrl = () => {
@@ -170,7 +173,6 @@ export default class Search extends Component {
     if (e) {
       this.updateQueryInUrl();
     }
-    console.log(e)
 
     if (this.devMode) {
       this.setState({ search_results: this.devData.search_results.results });
