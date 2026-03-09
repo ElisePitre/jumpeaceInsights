@@ -7,9 +7,12 @@ export default function NavBar() {
       <div className="jp-navbar-top">
         <div className="jp-navbar-spacer"></div>
 
-        <Link to="/" className="jp-navbar-title">
-          Jumpeace Insights
-        </Link>
+        {/* <Link to="/" className="jp-navbar-title"> */}
+        {/*   Jumpeace Insights */}
+        {/* </Link> */}
+        <div className="auth-logo">
+          <img src="/public/images/typefaceLogo.png" alt="Tinos logo" />
+        </div>
 
         <div className="jp-navbar-profile">
           <Link to="/account" className="jp-profile-link" aria-label="Account page">

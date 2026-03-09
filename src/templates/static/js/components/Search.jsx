@@ -355,10 +355,10 @@ export default class Search extends Component {
 
     return (
       <div className="page-container">
-        <div className="large-page-card">
-          <div className="auth-logo">
-            <img src="/public/images/typefaceLogo.png" alt="Tinos logo" />
-          </div>
+        <div className="page-card">
+          {/* <div className="auth-logo"> */}
+          {/*   <img src="/public/images/typefaceLogo.png" alt="Tinos logo" /> */}
+          {/* </div> */}
 
           <NavBar />
 
