@@ -362,7 +362,7 @@ export default class Search extends Component {
 
           <NavBar />
 
-          <h2 className="auth-title">Search</h2>
+          <h2 className="page-title">Search</h2>
 
           {this.state.error && <div className="auth-error">{this.state.error}</div>}
 
