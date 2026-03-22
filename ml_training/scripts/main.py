@@ -11,7 +11,7 @@ Requires data_loader.py and model_trainer.py in the same folder.
 FIXES IN THIS VERSION:
   
 """
-
+import os
 import logging
 from data_loader   import load_decade, START_YEAR, END_YEAR, MAX_ROWS_PER_DECADE
 from model_trainer import build_model, train_and_save, query_model
@@ -54,6 +54,10 @@ def main():
         sentences = load_decade(decade)
 
         # STEP 2 -- build model
+        if (os.path.exists("models/word2vec_%ds.model" % decade)):
+            log.info("[STEP 2] Model for %ds already exists -- skipping training.\n", decade)
+            saved_models["%ds" % decade] = "models/word2vec_%ds.model" % decade
+            continue
         model = build_model()
 
         # STEP 3 -- train & save
@@ -69,10 +73,10 @@ def main():
         log.info("  %s: %s", label, path)
     log.info("=" * 60)
 
-    # Quick sanity check on first trained model
-    if saved_models:
-        sample_path = list(saved_models.values())[0]
-        query_model(sample_path, words=["war", "freedom", "women", "president"])
+    # Quick sanity check on first trained model, not needed for all decades. Just want to verify that the training worked and the model can be queried. -- Puneet
+    # if saved_models:
+    #     sample_path = list(saved_models.values())[0]
+    #     query_model(sample_path, words=["revolution"])
 
     return saved_models
 

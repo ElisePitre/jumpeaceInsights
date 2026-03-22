@@ -98,7 +98,7 @@ def train_and_save(model: Word2Vec, sentences: list, decade_start: int):
     return save_path
 
 
-def query_model(model_path: str, words: list = None, topn: int = 5):
+def query_model(model_path: str, words: list = None, topn: int = 50):
     """
     Load a saved model and print nearest neighbours for a list of words.
     Use this to verify the model trained correctly.

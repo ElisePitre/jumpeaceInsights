@@ -29,7 +29,7 @@ STOP_WORDS = set(stopwords.words("english"))
 
 # ── Config ────────────────────────────────────────────────────────────────
 START_YEAR          = 1770   # earliest year in AmericanStories (for now kept to the first decade)
-END_YEAR            = 1780   # latest year in AmericanStories (for now kept to the first decade)
+END_YEAR            = 1799   # latest year in AmericanStories (for now kept to the first few decades)
 MAX_ROWS_PER_DECADE = 50_000 # lower to 10_000 if RAM is tight
 
 
@@ -106,8 +106,11 @@ def load_decade(decade_start: int, max_rows: int = MAX_ROWS_PER_DECADE) -> list:
                 year_list=[str(year)],
                 # year_list=["1770"],  # tried it for one year. shit does not work! 💀
             )
+            # Added a debug line as 1780s was not giving back data -- Puneet
+            # print(f"  Year {year}: available keys = {list(dataset_dict.keys())}") 
+            # PS: turns out there is no data for 1780s 😅
         except Exception as e:
-            # log.warning("  Year %d unavailable: %s", year, e)
+            log.warning("  Year %d unavailable: %s", year, e)
             continue
 
         year_data = dataset_dict.get(str(year))
