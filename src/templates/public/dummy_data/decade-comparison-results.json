@@ -1,0 +1,22 @@
+{
+  "term_a": "war",
+  "term_b": "freedom",
+  "results": [
+    {
+      "decade": "1800s",
+      "similarity": 0.2921
+    },
+    {
+      "decade": "1810s",
+      "similarity": 0.2652
+    },
+    {
+      "decade": "1820s",
+      "similarity": 0.2141
+    },
+    {
+      "decade": "1830s",
+      "similarity": 0.329
+    }
+  ]
+}
