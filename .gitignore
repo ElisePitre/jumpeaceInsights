@@ -1,6 +1,6 @@
 .venv/
+venv/
 env/
 node_modules/
-package-lock.json
 *.vim
 __pycache__
