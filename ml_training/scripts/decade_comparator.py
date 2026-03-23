@@ -1,11 +1,6 @@
 """
 decade_comparator.py -- Measure how two terms' association changed over decades. SEMANTIC SHIFT for decades
 
-Plugs directly into your existing pipeline:
-  - data_loader.py   : unchanged
-  - model_trainer.py : unchanged (models already saved to /models folder)
-  - This file        : loads those saved models and compares term pairs
-
 Usage:
     python decade_comparator.py
 
@@ -21,7 +16,7 @@ from gensim.models import Word2Vec
 log = logging.getLogger(__name__)
 
 # ── Config ────────────────────────────────────────────────────────────────
-# This mirrors your OUTPUT_DIR from model_trainer.py
+# This mirrors OUTPUT_DIR from model_trainer.py
 MODELS_DIR = "models"
 
 # Maps decade labels to saved model filenames
@@ -58,7 +53,7 @@ def load_model(path):
     Load a saved Word2Vec model from disk.
     Returns the model's word vectors (wv) object.
 
-    We only need wv -- the KeyedVectors object that maps
+    We only need wv for mapping of the KeyedVectors object that maps
     words to their numpy vectors. We don't need the full
     model since we're not training anymore.
 
@@ -81,9 +76,7 @@ def cosine_similarity(vec_a, vec_b):
       1.0 = vectors point same direction = strong association
       0.0 = vectors perpendicular = no association
 
-    This is the same formula used throughout the project.
-    Written manually here so you can see exactly what's
-    happening rather than hiding it in a library call.
+
     """
     dot   = np.dot(vec_a, vec_b)
     mag_a = np.linalg.norm(vec_a)
@@ -102,14 +95,14 @@ def compare_single_decade(wv, term_a, term_b):
     Given one decade's word vectors and two terms,
     return their cosine similarity.
 
-    Parameters
-    ----------
+    Parameters:
+   
     wv     : KeyedVectors from load_model()
     term_a : e.g. "women"
     term_b : e.g. "work"
 
-    Returns
-    -------
+    Returns:
+  
     dict with either a similarity score or a descriptive error.
 
     We return a dict instead of just a float so the caller
@@ -173,7 +166,7 @@ def compare_across_decades(term_a, term_b, start_year=None, end_year=None):
 
         wv = load_model(path)
         if wv is None:
-            continue   # model file not trained yet, skip silently
+            continue   # model file not trained, skip for now
 
         result = compare_single_decade(wv, term_a, term_b)
 
@@ -183,8 +176,8 @@ def compare_across_decades(term_a, term_b, start_year=None, end_year=None):
                 "similarity" : result["similarity"]
             })
         else:
-            # word was missing -- still include the decade so the
-            # frontend knows there's a gap, just with null similarity
+            # if word was missing -- still include the decade so the
+            # frontend included gap in dummy values for erro checkl
             results.append({
                 "decade"     : label,
                 "similarity" : None,
@@ -220,7 +213,7 @@ def save_comparison(term_a, term_b, results, output_path="results.json"):
     print("Saved to %s" % output_path)
 
 
-# ── Entry point -- run directly to test ───────────────────────────────────
+# ── Entry pointrun directly to test ───────────────────────────────────
 
 if __name__ == "__main__":
 
