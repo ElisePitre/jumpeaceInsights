@@ -1,11 +1,12 @@
 import React from 'react';
+import NavBar from './NavBar';
 
 const About = () => {
   return (
     <div className="page-container">
       <div className="page-card">
         <div className="auth-logo">
-          <img src="/public/images/typefaceLogo.png" alt="Tinos logo" />
+          <NavBar />
         </div>
 
         <h2 className="page-title">About</h2>

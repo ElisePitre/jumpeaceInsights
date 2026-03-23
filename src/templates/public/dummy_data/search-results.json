@@ -1,0 +1,23 @@
+{
+  "results": {
+    "search": "women",
+    "vectors": [
+      {"word": "children", "vector": 0.88},
+      {"word": "chill", "vector": 0.87},
+      {"word": "depreciation", "vector": 0.86},
+      {"word": "mits", "vector": 0.84},
+      {"word": "thread", "vector": 0.83},
+      {"word": "dreams", "vector": 0.82},
+      {"word": "youths", "vector": 0.82},
+      {"word": "maids", "vector": 0.81},
+      {"word": "patterns", "vector": 0.81},
+      {"word": "womens", "vector": 0.81},
+      {"word": "gowns", "vector": 0.79},
+      {"word": "hoe", "vector": 0.77},
+      {"word": "children", "vector": 0.79},
+      {"word": "hofery", "vector": 0.79},
+      {"word": "yarn", "vector": 0.79},
+      {"word": "kid", "vector": 0.79}
+    ]
+  }
+}

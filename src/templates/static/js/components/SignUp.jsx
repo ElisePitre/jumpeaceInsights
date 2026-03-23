@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 
-export default class SignUp extends Component {
+class SignUp extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -51,7 +51,7 @@ export default class SignUp extends Component {
       const data = await response.json();
       
       if (response.ok && data.success) {
-        window.location.href = '/#/login';
+        this.props.history.push('/search');
       } else {
         this.setState({ 
           error: data.message || 'Sign up failed. Please try again.',
@@ -59,10 +59,12 @@ export default class SignUp extends Component {
         });
       }
     } catch (err) {
-      this.setState({ 
-        error: 'Network error. Please try again later.',
-        loading: false
-      });
+      // Ignore error for now and go to search page
+      this.props.history.push('/search');
+      // this.setState({ 
+      //   error: 'Network error. Please try again later.',
+      //   loading: false
+      // });
     }
   }
 
@@ -147,10 +149,12 @@ export default class SignUp extends Component {
         
         <div className="auth-links">
           <span>Already have an account?</span>
-          <Link to="/login" className="auth-link">Login</Link>
+          <Link to="/" className="auth-link">Login</Link>
         </div>
       </div>
     </div>
     );
   }
 }
+
+export default withRouter(SignUp);
