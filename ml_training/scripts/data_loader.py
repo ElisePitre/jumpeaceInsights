@@ -54,8 +54,8 @@ nltk.download("stopwords", quiet=True)
 STOP_WORDS = set(stopwords.words("english"))
 
 # ── Config ────────────────────────────────────────────────────────────────
-START_YEAR        = 1850    # earliest year in AmericanStories
-END_YEAR          = 1859    # latest year in AmericanStories
+START_YEAR        = 1850    # earliest year in AmericanStories CHANGE THIS YEARS
+END_YEAR          = 1869    # latest year in AmericanStories
 MAX_ROWS_PER_YEAR = 50_000  # cap applied per year, not per decade
                             # lower to 10_000 if RAM is tight
 
@@ -211,13 +211,14 @@ def load_decade(decade_start: int,
 
         try:
             # year_list is the correct API for AmericanStories.
-            # trust_remote_code removed -- no longer supported and was
-            # crashing the load before any download could happen.
+          
+            # a script-based loader which HF requires explicit authorization for.
             load_kwargs = dict(
                 path          = _DATASET_NAME,
                 name          = _DATASET_CONFIG,
                 year_list     = [str(year)],
                 download_mode = "force_redownload",
+    
             )
             if hf_token:
                 load_kwargs["token"] = hf_token

@@ -4,6 +4,8 @@ decade_comparator.py -- Measure how two terms' association changed over decades.
 Usage:
     python decade_comparator.py
 
+    Bottom lines in Main, substitite term A or B and Start and End Year to maange
+
 
 """
 
@@ -15,16 +17,15 @@ from gensim.models import Word2Vec
 
 log = logging.getLogger(__name__)
 
-# ── Config ────────────────────────────────────────────────────────────────
-# This mirrors OUTPUT_DIR from model_trainer.py
-MODELS_DIR = "models"
+#  Config
+MODELS_DIR = MODELS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "w2v_models")
 
 # Maps decade labels to saved model filenames
 # Add or remove decades here as you train more models
 #"<XXXX>s": os.path.join(MODELS_DIR, "word2vec_<XXXX>s.model")
 DECADE_MODEL_PATHS = {
     "1770s": os.path.join(MODELS_DIR, "word2vec_1770s.model"),
-    "1780s": os.path.join(MODELS_DIR, "word2vec_1780s.model"),
+    "1780s": os.path.join(MODELS_DIR, "word2vec_1780s.model"), #MARK this isnt trained
     "1790s": os.path.join(MODELS_DIR, "word2vec_1790s.model"),
     "1800s": os.path.join(MODELS_DIR, "word2vec_1800s.model"),
     "1810s": os.path.join(MODELS_DIR, "word2vec_1810s.model"),
@@ -46,7 +47,7 @@ DECADE_MODEL_PATHS = {
 }
 
 
-# ── Core functions ────────────────────────────────────────────────────────
+# ── Core functions ────────
 
 def load_model(path):
     """
@@ -213,8 +214,7 @@ def save_comparison(term_a, term_b, results, output_path="results.json"):
     print("Saved to %s" % output_path)
 
 
-# ── Entry pointrun directly to test ───────────────────────────────────
-
+# ENTRY POINT FOR RUNNING PROGRAM. Modify under "FOR TESTING PAIRS, Change TERM_B,TEAM_A AND START_yEAR AND END_YEAR
 if __name__ == "__main__":
 
     logging.basicConfig(
@@ -225,10 +225,10 @@ if __name__ == "__main__":
 
 ##FOR TESTING PAIRS
 
-    TERM_A     = "women"
-    TERM_B     = "work"
-    START_YEAR = 1850
-    END_YEAR   = 1960
+    TERM_A     = "war"
+    TERM_B     = "freedom"
+    START_YEAR = 1800
+    END_YEAR   = 1830
 
     print("=" * 55)
     print("Comparing: '%s' <-> '%s'  (%d-%d)"
