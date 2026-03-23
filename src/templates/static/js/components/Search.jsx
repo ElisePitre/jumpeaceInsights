@@ -1,7 +1,7 @@
 import React, { Component, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import NavBar from './NavBar';
-import { Bar } from 'react-chartjs-2';
+import { Bar, Line } from 'react-chartjs-2';
 import WordCloud from "react-wordcloud";
 import * as htmlToImage from "html-to-image";
 
@@ -37,10 +37,32 @@ export const mapOptions = {
   },
   size: [10, 50],
 };
+export const decadeComparisonOptions = {
+  responsive: true,
+  legend: false,
+  scales: {
+    yAxes: [{
+      ticks: { min: 0, max: 1 },
+      scaleLabel: {
+        display: true,
+        labelString: 'Closeness of terms',
+        fontStyle: 'bold'
+      }
+    }],
+    xAxes: [{
+      scaleLabel: {
+        display: true,
+        labelString: 'Decade',
+        fontStyle: 'bold'
+      }
+    }]
+  }
+};
 
 const dev_past_searches = require("../../../public/dummy_data/past-searches.json");
 const dev_popular_searches = require("../../../public/dummy_data/popular-searches.json");
 const dev_search_results = require("../../../public/dummy_data/search-results.json");
+const dev_decade_comparison_results = require("../../../public/dummy_data/decade-comparison-results.json");
 
 const SEARCH_PARAMS = [
   'search_term',
@@ -62,10 +84,12 @@ export default class Search extends Component {
       popular_searches: [],
       past_searches: [],
       search_results: {},
-      visualizer_mode: 'bar', //bar, map
+      decade_comparison_results: {}, // Should be empty unless a search with a destination term has been made
+      visualizer_mode: 'bar', //bar, map, decade-comparison
     };
     this.barChartRef = React.createRef();
     this.wordCloudRef = React.createRef();
+    this.decadeComparisonRef = React.createRef();
   }
 
   getBarData() {
@@ -86,6 +110,49 @@ export default class Search extends Component {
       }
     });
   }
+  // New feature: decade comparison -- Added by Elise
+  getDecadeComparisionData(){
+    const sr = this.state.search_results;
+    const dcr = this.state.decade_comparison_results;
+    const decadeResults = Array.isArray(dcr?.results)
+      ? dcr.results
+      : Array.isArray(sr?.results)
+        ? sr.results
+        : Array.isArray(sr?.decade_comparison)
+          ? sr.decade_comparison
+        : [];
+
+    if (decadeResults.length === 0) {
+      return { labels: [], datasets: [] };
+    }
+
+    const parsedResults = decadeResults
+      .map((item) => ({
+        decade: String(item?.decade ?? ''),
+        similarity: Number(item?.similarity)
+      }))
+      .filter((item) => item.decade !== '' && !Number.isNaN(item.similarity));
+
+    parsedResults.sort((a, b) => {
+      const aNum = parseInt(a.decade.replace(/\D/g, ''), 10);
+      const bNum = parseInt(b.decade.replace(/\D/g, ''), 10);
+      if (Number.isNaN(aNum) || Number.isNaN(bNum)) return a.decade.localeCompare(b.decade);
+      return aNum - bNum;
+    });
+
+    return {
+      labels: parsedResults.map((item) => item.decade),
+      datasets: [{
+        label: `${dcr.term_a || sr.term_a || this.state.search_term} vs ${dcr.term_b || sr.term_b || this.state.destination_term}`,
+        data: parsedResults.map((item) => item.similarity),
+        borderColor: 'rgba(12,23,54,1)',
+        backgroundColor: 'rgba(12,23,54,0.2)',
+        fill: false,
+        lineTension: 0.1,
+      }],
+    };
+  }
+
   downloadChart() {
     if (!this.barChartRef.current) return;
     const chart = this.barChartRef.current.chartInstance; // Chart.js v2
@@ -117,6 +184,23 @@ export default class Search extends Component {
     //   link.click();
     // });
   }
+  // New feature: decade comparison -- Added by Elise
+  downloadDecadeComparison() {
+    if (!this.decadeComparisonRef.current) return;
+
+    htmlToImage.toPng(this.decadeComparisonRef.current, {
+      pixelRatio: 2,
+      backgroundColor: '#fff',
+    })
+      .then((dataUrl) => {
+        const link = document.createElement("a");
+        const fileNameBase = this.state.search_results.search || this.state.search_results.term_a || this.state.search_term;
+        link.download = fileNameBase + '-decade-comparison.png';
+        link.href = dataUrl;
+        link.click();
+      })
+      .catch((err) => console.error(err));
+  }
 
   componentDidMount() {
     this.getSearches("popular");
@@ -132,7 +216,8 @@ export default class Search extends Component {
   devData = {
     past_searches: dev_past_searches,
     popular_searches: dev_popular_searches,
-    search_results: dev_search_results
+    search_results: dev_search_results,
+    decade_comparison_results: dev_decade_comparison_results
   }
   devGlobals = {
     username: 'test-user',
@@ -161,7 +246,7 @@ export default class Search extends Component {
       console.log('search');
       this.handleSubmit();
     }else {
-      this.setState({ search_results: {} });
+      this.setState({ search_results: {}, decade_comparison_results: {} });
     }
   }
 
@@ -187,7 +272,12 @@ export default class Search extends Component {
     }
 
     if (this.devMode) {
-      this.setState({ search_results: this.devData.search_results.results });
+      this.setState({
+        search_results: this.devData.search_results.results,
+        decade_comparison_results: this.state.destination_term.trim() !== ''
+          ? this.devData.decade_comparison_results
+          : {}
+      });
       return;
     }
 
@@ -209,7 +299,10 @@ export default class Search extends Component {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        this.setState({ search_results: data.results })
+        this.setState({
+          search_results: data.results,
+          decade_comparison_results: data.decade_comparison_results || data.decadeComparisonResults || {}
+        })
       } else {
 
         this.setState({
@@ -286,15 +379,20 @@ export default class Search extends Component {
   }
 
   results = () => {
+    const hasDestinationTerm = this.state.destination_term.trim() !== '';
+    const decadeData = this.getDecadeComparisionData();
+    const hasDecadeData = decadeData.labels.length > 0;
+    const hasVectorData = Array.isArray(this.state.search_results.vectors) && this.state.search_results.vectors.length > 0;
+    const resultTitle = this.state.search_results.search || this.state.search_results.term_a || this.state.search_term;
     return (
       <div className='result-card'>
-        <h4 className='searches-header'>Results: {this.state.search_results.search}</h4>
+        <h4 className='searches-header'>Results: {resultTitle}</h4>
         <div className="form-row" style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
           <div className="form-group" style={{ flex: 1 }}>
             <div className='result-card'>
               <h4 className='searches-header'>Top 5 Results</h4>
               <ol className='searches-list'>
-                {this.state.search_results.vectors.slice(0, 5).map((result, index) => (
+                {(this.state.search_results.vectors || []).slice(0, 5).map((result, index) => (
                   <li key={index}>
                     <Link to={`/search?search_term=${encodeURIComponent(result.word)}`}>
                       {result.word}
@@ -308,19 +406,28 @@ export default class Search extends Component {
             <div className='result-card'>
               <div className="form-row" style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
                 <div className="form-group" style={{ flex: 1 }}>
-                  <button className='auth-button' onClick={() => this.setState({ visualizer_mode: 'bar' })}>
+                  <button className='auth-button' onClick={() => this.setState({ visualizer_mode: 'bar' })} disabled={!hasVectorData}>
                     Bar graph
                   </button>
                 </div>
                 <div className="form-group" style={{ flex: 1 }}>
-                  <button className='auth-button' onClick={() => this.setState({ visualizer_mode: 'map' })}>
+                  <button className='auth-button' onClick={() => this.setState({ visualizer_mode: 'map' })} disabled={!hasVectorData}>
                     Word web
                   </button>
                 </div>
+                {hasDestinationTerm && hasDecadeData &&
+                  <div className="form-group" style={{ flex: 1 }}>
+                    <button className='auth-button' onClick={() => this.setState({ visualizer_mode: 'decade-comparison' })}>
+                      Decade comparison
+                    </button>
+                  </div>
+                }
                 <div className="form-group" style={{ flex: 1 }}>
                   <button className='auth-button' onClick={() => {
                     if (this.state.visualizer_mode === 'bar') {
                       this.downloadChart();
+                    } else if (this.state.visualizer_mode === 'decade-comparison') {
+                      this.downloadDecadeComparison();
                     } else {
                       this.downloadMap();
                     }
@@ -331,13 +438,18 @@ export default class Search extends Component {
               </div>
 
               <h4 className='searches-header'>Visualizers</h4>
-              {this.state.visualizer_mode === 'bar' &&
+              {this.state.visualizer_mode === 'bar' && hasVectorData &&
                 <div style={{ height: 250 }}>
                   <Bar ref={this.barChartRef} options={chartOptions} data={this.getBarData()} />
                 </div>}
-              {this.state.visualizer_mode === 'map' &&
+              {this.state.visualizer_mode === 'map' && hasVectorData &&
                 <div ref={this.wordCloudRef} style={{ height: 250 }}>
                   <WordCloud options={mapOptions.options} words={this.getMapData()} />
+                </div>
+              }
+              {this.state.visualizer_mode === 'decade-comparison' && hasDestinationTerm && hasDecadeData &&
+                <div ref={this.decadeComparisonRef} style={{ height: 250 }}>
+                  <Line options={decadeComparisonOptions} data={decadeData} />
                 </div>
               }
             </div>
@@ -348,11 +460,12 @@ export default class Search extends Component {
   }
 
   searchChips = () => {
+    const resultTitle = this.state.search_results.search || this.state.search_results.term_a || '';
     return (
       <div>
         {
           Object.keys(this.state.search_results).length !== 0
-          && this.state.search_results.search !== ""
+          && resultTitle !== ""
           && this.results()
         }
         {
