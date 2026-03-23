@@ -22,7 +22,7 @@ SG          = 1     # 1 = skip-gram (better for rare/historical words)
                     # 0 = CBOW      (faster, works well with lots of data)
 EPOCHS      = 5     # training passes over the data
 
-OUTPUT_DIR  = "models"
+OUTPUT_DIR  = "../w2v_models"
 
 
 def build_model() -> Word2Vec:
@@ -97,27 +97,27 @@ def train_and_save(model: Word2Vec, sentences: list, decade_start: int):
     log.info("  Model saved to: %s\n", save_path)
     return save_path
 
+# ── Optional: Querying the model ───────────────────────────────────
+# def query_model(model_path: str, words: list = None, topn: int = 50):
+#     """
+#     Load a saved model and print nearest neighbours for a list of words.
+#     Use this to verify the model trained correctly.
 
-def query_model(model_path: str, words: list = None, topn: int = 50):
-    """
-    Load a saved model and print nearest neighbours for a list of words.
-    Use this to verify the model trained correctly.
+#     Example
+#     -------
+#         query_model("models/word2vec_1850s.model", ["war", "slavery"])
+#     """
+#     if words is None:
+#         words = ["war", "freedom", "slavery", "women", "president"]
 
-    Example
-    -------
-        query_model("models/word2vec_1850s.model", ["war", "slavery"])
-    """
-    if words is None:
-        words = ["war", "freedom", "slavery", "women", "president"]
+#     log.info("Querying model: %s", model_path)
+#     model = Word2Vec.load(model_path)
+#     log.info("  Vocabulary size: %d", len(model.wv))
 
-    log.info("Querying model: %s", model_path)
-    model = Word2Vec.load(model_path)
-    log.info("  Vocabulary size: %d", len(model.wv))
-
-    for word in words:
-        if word in model.wv:
-            neighbours = model.wv.most_similar(word, topn=topn)
-            formatted  = ", ".join("%s(%.2f)" % (w, s) for w, s in neighbours)
-            log.info("  %-15s -> %s", word, formatted)
-        else:
-            log.info("  %-15s -> (not in vocabulary)", word)
+#     for word in words:
+#         if word in model.wv:
+#             neighbours = model.wv.most_similar(word, topn=topn)
+#             formatted  = ", ".join("%s(%.2f)" % (w, s) for w, s in neighbours)
+#             log.info("  %-15s -> %s", word, formatted)
+#         else:
+#             log.info("  %-15s -> (not in vocabulary)", word)
