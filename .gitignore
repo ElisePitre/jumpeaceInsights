@@ -1,6 +1,8 @@
+*.log
 .venv/
 venv/
 env/
 node_modules/
 *.vim
 __pycache__
+*.log
