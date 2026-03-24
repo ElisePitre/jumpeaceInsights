@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@babel/runtime": "^7.28.6",
+    "react-multi-select-component": "^4.3.4",
     "regenerator-runtime": "^0.14.1"
   },
   "devDependencies": {

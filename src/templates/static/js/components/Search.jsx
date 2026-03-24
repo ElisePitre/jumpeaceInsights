@@ -1,6 +1,7 @@
 import React, { Component, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import NavBar from './NavBar';
+import { MultiSelect } from 'react-multi-select-component';
 import { Bar } from 'react-chartjs-2';
 import WordCloud from "react-wordcloud";
 import * as htmlToImage from "html-to-image";
@@ -45,9 +46,10 @@ const dev_search_results = require("../../../public/dummy_data/search-results.js
 const SEARCH_PARAMS = [
   'search_term',
   'destination_term',
-  'start_date',
-  'end_date',
+  'decades',
 ];
+
+const DECADE_RANGE = [1770, 1960]
 
 export default class Search extends Component {
   constructor(props) {
@@ -55,8 +57,7 @@ export default class Search extends Component {
     this.state = {
       search_term: '',
       destination_term: '',
-      start_date: new Date(),
-      end_date: new Date(),
+      decades: [],
       error: '',
       loading: false,
       popular_searches: [],
@@ -118,6 +119,19 @@ export default class Search extends Component {
     // });
   }
 
+  decadeSelect() {
+    return Array.from(
+      { length: Math.floor((DECADE_RANGE[1] - DECADE_RANGE[0]) / 10) + 1 },
+      (_, i) => {
+        const n = DECADE_RANGE[0] + (i * 10);
+        return {
+          label: n.toString(),
+          value: n
+        };
+      }
+    );
+  }
+
   componentDidMount() {
     this.getSearches("popular");
     this.getSearches("past");
@@ -149,9 +163,10 @@ export default class Search extends Component {
       console.log(params.get(param), index);
       if (params.get(param) !== this.state[param]) {
         this.setState({
-          [param]: params.get(param) ?? ''
+          [param]: params.get(param) ?? 
+            (Array.isArray(this.state[param]) ? [] : '')
         }, () => {
-          if (this.state[param] !== '') {
+          if (!['', []].includes(this.state[param])) {
               search = true;
           }
         })
@@ -181,6 +196,10 @@ export default class Search extends Component {
     window.history.replaceState(null, '', newHash);
   };
 
+  handleDecadeChange = (newDecades) => {
+    this.setState({ decades: newDecades })
+  }
+
   handleSubmit = async (e) => {
     if (e) {
       this.updateQueryInUrl();
@@ -201,8 +220,7 @@ export default class Search extends Component {
         body: JSON.stringify({
           search_term: this.state.search_term,
           destination_term: this.state.destination_term,
-          start_date: this.state.start_date,
-          end_date: this.state.end_date,
+          decades: this.state.decades,
         })
       });
 
@@ -366,6 +384,7 @@ export default class Search extends Component {
   }
 
   render() {
+    const decadeOptions = this.decadeSelect();
 
     return (
       <div className="page-container">
@@ -403,25 +422,20 @@ export default class Search extends Component {
               </div>
             </div>
 
-            {/* Second row: start_date | end_date | destination_term */}
+            {/* Second row: decades | destination_term */}
             <div className="form-row" style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
               <div className="form-group" style={{ flex: 1 }}>
-                <input
-                  type="date"
-                  id="start_date"
-                  value={this.state.start_date}
-                  onChange={(e) => this.setState({ start_date: e.target.value })}
-                  disabled={this.state.loading}
-                />
-              </div>
-
-              <div className="form-group" style={{ flex: 1 }}>
-                <input
-                  type="date"
-                  id="end_date"
-                  value={this.state.end_date}
-                  onChange={(e) => this.setState({ end_date: e.target.value })}
-                  disabled={this.state.loading}
+                <MultiSelect
+                  id="decades_term"
+                  value={this.state.decades}
+                  options={decadeOptions}
+                  onChange={this.handleDecadeChange}
+                  labelledBy='Select'
+                  valueRenderer={(selected, _options) => {
+                    if (selected.length === 0) return "Select Decades";
+                    if (selected.length === 1) return "1 Decade Selected";
+                    return `${selected.length} Decades Selected`;
+                  }}
                 />
               </div>
 
