@@ -49,8 +49,6 @@ const SEARCH_PARAMS = [
   'decades',
 ];
 
-const DECADE_RANGE = [1770, 1960]
-
 export default class Search extends Component {
   constructor(props) {
     super(props);
@@ -119,17 +117,18 @@ export default class Search extends Component {
     // });
   }
 
-  decadeSelect() {
-    return Array.from(
-      { length: Math.floor((DECADE_RANGE[1] - DECADE_RANGE[0]) / 10) + 1 },
-      (_, i) => {
-        const n = DECADE_RANGE[0] + (i * 10);
-        return {
-          label: n.toString(),
-          value: n
-        };
+  decadeListToOptions(listString) {
+    const list = listString.split(",");
+    return list.map((v) => {
+      return {
+        label: v,
+        value: Number(v),
       }
-    );
+    });
+  }
+
+  decadeOptionsToList(options) {
+    return options.map((v) => v.value);
   }
 
   componentDidMount() {
@@ -163,7 +162,10 @@ export default class Search extends Component {
       console.log(params.get(param), index);
       if (params.get(param) !== this.state[param]) {
         this.setState({
-          [param]: params.get(param) ?? 
+          [param]: params.get(param) ? 
+            (Array.isArray(this.state[param]) ? 
+              this.decadeListToOptions(params.get(param)) : 
+              params.get(param)) : 
             (Array.isArray(this.state[param]) ? [] : '')
         }, () => {
           if (!['', []].includes(this.state[param])) {
@@ -187,7 +189,10 @@ export default class Search extends Component {
 
     SEARCH_PARAMS.forEach((param) => {
       if (!params.get(param) || params.get(param) !== this.state[param]) {
-        params.set(param, this.state[param]);
+        params.set(param, Array.isArray(this.state[param]) ?
+          this.decadeOptionsToList(this.state[param]) :
+          this.state[param]
+        );
       }
     })
 
@@ -196,16 +201,17 @@ export default class Search extends Component {
     window.history.replaceState(null, '', newHash);
   };
 
-  handleDecadeChange = (newDecades) => {
-    this.setState({ decades: newDecades })
-  }
-
   handleSubmit = async (e) => {
     if (e) {
       this.updateQueryInUrl();
     }
 
     if (this.devMode) {
+      console.log(JSON.parse(JSON.stringify({
+        search_term: this.state.search_term,
+        destination_term: this.state.destination_term,
+        decades: this.decadeOptionsToList(this.state.decades),
+      })));
       this.setState({ search_results: this.devData.search_results.results });
       return;
     }
@@ -220,7 +226,7 @@ export default class Search extends Component {
         body: JSON.stringify({
           search_term: this.state.search_term,
           destination_term: this.state.destination_term,
-          decades: this.state.decades,
+          decades: this.decadeOptionsToList(this.state.decades),
         })
       });
 
@@ -384,7 +390,15 @@ export default class Search extends Component {
   }
 
   render() {
-    const decadeOptions = this.decadeSelect();
+    const decadeOptions = Array.from(
+      { length: Math.floor((1960 - 1770) / 10) + 1 },
+      (_, i) => {
+        return {
+          label: (1770 + i * 10).toString(),
+          value: 1770 + i * 10
+        }
+      } 
+    );
 
     return (
       <div className="page-container">
@@ -429,11 +443,12 @@ export default class Search extends Component {
                   id="decades_term"
                   value={this.state.decades}
                   options={decadeOptions}
-                  onChange={this.handleDecadeChange}
+                  onChange={(e) => this.setState({ decades: e })}
                   labelledBy='Select'
                   valueRenderer={(selected, _options) => {
                     if (selected.length === 0) return "Select Decades";
                     if (selected.length === 1) return "1 Decade Selected";
+                    if (selected.length === _options.length) return "All Decades Selected";
                     return `${selected.length} Decades Selected`;
                   }}
                 />
