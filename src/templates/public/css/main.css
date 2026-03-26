@@ -644,9 +644,18 @@ h1, h2, h3, h4, h5, h6, p, ul {
   position: relative;
   display: flex;
   align-items: center;
+  
+ 
 }
 
+/* Ensure the input inside also takes full width */
+.form-group.search-box input#search_term {
+  width: 100%;
+  box-sizing: border-box;
+}
 .form-group.search-box input {
+ width: 100%;
+  box-sizing: border-box;
   padding-right: 54px;
 }
 
@@ -1320,6 +1329,49 @@ body {
   text-transform: uppercase !important;
 }
 
+/* Change the result card to a flex column layout */
+.result-card {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px; /* Adds consistent spacing between elements */
+}
+
+/* Move the internal graph container to the top */
+.result-card .ai-style-change-4 { /* Or use the direct container's class */
+  order: -1;                     /* This moves it above the header */
+  width: 100% !important;
+}
+
+/* Ensure the header and list keep their standard order */
+.result-card .searches-header {
+  order: 0;
+}
+
+
+/* [FIX 4a] Search Page: Full-Width Search Bar (persistent CSS equivalent of runtime style patch) */
+.form-group.search-box {
+  width: 100% !important;
+  max-width: none !important;
+  flex-grow: 1 !important;
+}
+
+/* ============================================================
+   [FIX 4a] Search Page: Full-Width Search Bar
+   ============================================================ */
+
+.form-group.search-box {
+  width: 100%;       /* Fill the parent row */
+  max-width: none;   /* Remove the 240px constraint */
+  flex-grow: 1;      /* Grow within the flex container */
+  margin-bottom: 24px;
+}
+
+/* Ensure the input inside expands correctly */
+.form-group.search-box input#search_term {
+  width: 100%;
+  box-sizing: border-box;
+}
+
 /* Container for the search bar and inputs */
 .search-form-wrap {
   max-width: 720px;
@@ -1333,8 +1385,11 @@ body {
 
 /* Search bar input container */
 .form-group.search-box {
-  max-width: 720px;
-  margin: 0 auto 24px auto;
+  width: 100%;       /* Ensures it fills the width of the row */
+  max-width: none;    /* Removes the 240px restriction */
+  flex-grow: 1;      /* Allows it to expand in a flex container */
+  margin-bottom: 24px;
+ 
   position: relative;
 }
 
