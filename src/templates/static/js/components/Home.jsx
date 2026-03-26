@@ -25,8 +25,7 @@ class Login extends Component {
       this.props.history.push('/search');
     } catch (err) {
       this.setState({ error: errorMessage(err), loading: false });
-      //add a pop up for error message
-      alert(err.message);
+      
     }
   }
   handleGuestLogin = async () => {

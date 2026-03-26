@@ -5,9 +5,11 @@ import { auth } from "../firebase/firebase";
 import {
   signOut,
   deleteUser,
-  updateEmail,
   updateProfile,
   onAuthStateChanged,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  updateEmail,
 } from "firebase/auth";
 
 class Account extends Component {
@@ -17,13 +19,129 @@ class Account extends Component {
       user: null,
       username: "Guest",
       email: "N/A",
-      newUsername: "",
-      newEmail: "",
       saving: false,
       isGuest: false,
+
+      editOpen: false,
+      editField: "",
+      editValue: "",
+      editPassword: "", // required for email update re-auth
+
+      noticeOpen: false,
+      noticeMessage: "",
+      noticeType: "success",
+
+      // custom confirm modal
+      confirmOpen: false,
+      confirmType: "", // "delete" | "logout"
+      confirmMessage: "",
+      confirming: false,
     };
     this.unsubscribeAuth = null;
+    this.noticeTimer = null;
   }
+
+  openConfirm = (type) => {
+    const confirmMessage =
+      type === "delete"
+        ? "Are you sure you want to delete your account?"
+        : "Are you sure you want to log out?";
+
+    this.setState({
+      confirmOpen: true,
+      confirmType: type,
+      confirmMessage,
+    });
+  };
+
+  closeConfirm = () => {
+    if (this.state.confirming) return;
+    this.setState({
+      confirmOpen: false,
+      confirmType: "",
+      confirmMessage: "",
+    });
+  };
+
+  runConfirmAction = async () => {
+    const { confirmType } = this.state;
+    const user = auth.currentUser;
+    if (!confirmType || !user) return;
+
+    this.setState({ confirming: true });
+
+    try {
+      if (confirmType === "delete") {
+        await deleteUser(user);
+        this.showNotice("Account deleted successfully.", "success");
+      } else {
+        await signOut(auth);
+        this.showNotice("Logged out successfully.", "success");
+      }
+
+      this.setState({ confirmOpen: false, confirmType: "", confirmMessage: "", confirming: false });
+
+      setTimeout(() => {
+        window.location.href = "/#/";
+      }, 500);
+    } catch (error) {
+      console.error("Confirm action error:", error);
+      this.setState({ confirming: false, confirmOpen: false, confirmType: "", confirmMessage: "" });
+      this.showNotice(
+        confirmType === "delete"
+          ? "An error occurred while deleting your account."
+          : "An error occurred while logging out.",
+        "error"
+      );
+    }
+  };
+
+  handleDelete = () => {
+    this.openConfirm("delete");
+  };
+
+  handleLogOut = () => {
+    this.openConfirm("logout");
+  };
+
+  showNotice = (message, type = "success", timeout = 2200) => {
+    if (this.noticeTimer) clearTimeout(this.noticeTimer);
+    this.setState({ noticeOpen: true, noticeMessage: message, noticeType: type });
+    this.noticeTimer = setTimeout(() => {
+      this.setState({ noticeOpen: false, noticeMessage: "" });
+    }, timeout);
+  };
+
+  getAuthErrorMessage = (error) => {
+    const code = error?.code || "";
+    if (code === "auth/requires-recent-login") return "Please enter current password and try again.";
+    if (code === "auth/invalid-credential" || code === "auth/wrong-password") return "Current password is incorrect.";
+    if (code === "auth/email-already-in-use") return "That email is already in use.";
+    if (code === "auth/invalid-email") return "Please enter a valid email address.";
+    if (code === "auth/operation-not-allowed") return "Email change requires verification. Check your new email inbox.";
+    if (code === "auth/network-request-failed") return "Network error. Try again.";
+    return `Update failed (${code || "unknown"}).`;
+  };
+
+  refreshAuthUser = async (showSuccess = false) => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    await user.reload();
+    const freshUser = auth.currentUser;
+    const isGuest = !!freshUser && (freshUser.isAnonymous || !freshUser.email);
+
+    this.setState({
+      user: freshUser,
+      username: freshUser?.displayName || "Guest",
+      email: freshUser?.email || "N/A",
+      isGuest,
+    });
+
+    if (showSuccess) {
+      this.showNotice("Email verified and updated successfully.", "success", 4500);
+    }
+  };
 
   componentDidMount() {
     this.unsubscribeAuth = onAuthStateChanged(auth, (user) => {
@@ -33,15 +151,15 @@ class Account extends Component {
         user,
         username: user?.displayName || "Guest",
         email: user?.email || "N/A",
-        newUsername: user?.displayName || "",
-        newEmail: user?.email || "",
         isGuest: guest,
       });
     });
+    // Remove the verification link check
   }
 
   componentWillUnmount() {
     if (this.unsubscribeAuth) this.unsubscribeAuth();
+    if (this.noticeTimer) clearTimeout(this.noticeTimer);
   }
 
   handleGuestToSignup = () => {
@@ -57,91 +175,115 @@ class Account extends Component {
     }
   };
 
-  handleUpdateAccount = async () => {
+  handleGuestToSignin = () => {
+ 
+    const target =   `/` ;
+
+    if (this.props.history?.push) {
+      this.props.history.push(target);
+    } else {
+      window.location.href = `/#${target}`;
+    }
+  };
+
+  saveInlineEdit = async () => {
+    const { editField, editValue, editPassword } = this.state;
     const user = auth.currentUser;
-    const { newUsername, newEmail } = this.state;
 
-    if (!user) {
-      window.alert("No authenticated user found.");
-      return;
-    }
+    if (!user) return this.showNotice("No authenticated user found.", "error");
 
-    if (user.isAnonymous) {
-      window.alert("Guest users cannot update email/username.");
-      return;
-    }
+    const nextValue = (editValue || "").trim();
+    if (!editField || !nextValue) return this.showNotice("Field cannot be empty.", "error");
 
     this.setState({ saving: true });
 
     try {
-      if (newUsername && newUsername !== user.displayName) {
-        await updateProfile(user, { displayName: newUsername });
+      if (editField === "username") {
+        await updateProfile(user, { displayName: nextValue });
+        await user.reload();
+        this.setState({
+          saving: false,
+          editOpen: false,
+          editField: "",
+          editValue: "",
+          editPassword: "",
+          username: auth.currentUser?.displayName || "Guest",
+        });
+        this.showNotice("Username updated successfully.", "success");
+        return;
       }
 
-      if (newEmail && newEmail !== user.email) {
-        await updateEmail(user, newEmail);
+      // email flow - direct update (no verification link)
+      if (!editPassword) {
+        this.setState({ saving: false });
+        return this.showNotice("Enter current password to update email.", "error");
       }
 
+      const credential = EmailAuthProvider.credential(user.email || "", editPassword);
+      await reauthenticateWithCredential(user, credential);
+      await updateEmail(user, nextValue);
+      await user.reload();
+
+      // Refresh state with new email
+      const freshUser = auth.currentUser;
       this.setState({
-        username: auth.currentUser?.displayName || newUsername || "Guest",
-        email: auth.currentUser?.email || newEmail || "N/A",
         saving: false,
+        editOpen: false,
+        editField: "",
+        editValue: "",
+        editPassword: "",
+        email: freshUser?.email || "N/A",
+        username: freshUser?.displayName || "Guest",
       });
 
-      window.alert("Account updated successfully.");
+      this.showNotice("Email updated successfully.", "success");
     } catch (error) {
+      console.error("saveInlineEdit:", error?.code, error?.message);
       this.setState({ saving: false });
-      console.error("Error updating account:", error);
-      window.alert(
-        error?.code === "auth/requires-recent-login"
-          ? "Please log out and log in again, then retry updating your email."
-          : "Failed to update account."
-      );
+      this.showNotice(this.getAuthErrorMessage(error), "error");
     }
   };
 
-  handleDelete = () => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete your account?"
-    );
-
-    if (confirmed) {
-      window.alert("Your account has been deleted successfully.");
-      deleteUser(auth.currentUser)
-        .then(() => {
-          console.log("User deleted successfully");
-          setTimeout(() => {
-            window.location.href = "/#/";
-          }, 300);
-        })
-        .catch((error) => {
-          console.error("Error deleting user:", error);
-          window.alert("An error occurred while deleting your account. Please try again.");
-        });
-    }
+  openEdit = (field) => {
+    const { username, email } = this.state;
+    this.setState({
+      editOpen: true,
+      editField: field,
+      editValue: field === "email" ? (email || "") : (username || ""),
+      editPassword: "",
+    });
   };
 
-  handleLogOut = () => {
-    const confirmed = window.confirm("Are you sure you want to log out?");
+  closeEdit = () => {
+    this.setState({
+      editOpen: false,
+      editField: "",
+      editValue: "",
+      editPassword: "",
+    });
+  };
 
-    if (confirmed) {
-      window.alert("You have been logged out successfully.");
-      signOut(auth)
-        .then(() => {
-          console.log("User signed out successfully");
-          setTimeout(() => {
-            window.location.href = "/#/";
-          }, 300);
-        })
-        .catch((error) => {
-          console.error("Error signing out:", error);
-          window.alert("An error occurred while logging out. Please try again.");
-        });
-    }
+  handleEditValueChange = (e) => {
+    this.setState({ editValue: e.target.value });
   };
 
   render() {
-    const { user, username, email, newUsername, newEmail, saving } = this.state;
+    const {
+      user,
+      username,
+      email,
+      saving,
+      editOpen,
+      editField,
+      editValue,
+      noticeOpen,
+      noticeMessage,
+      noticeType,
+      confirmOpen,
+      confirmMessage,
+      confirming,
+      editPassword,
+    } = this.state;
     const isGuest = !!user && (user.isAnonymous || !user.email);
 
     return (
@@ -158,68 +300,129 @@ class Account extends Component {
               </div>
 
               <div className="account-details">
-                <p>
-                  <strong>Username:</strong> {username}
-                </p>
-                <p>
-                  <strong>Email:</strong> {email}
-                </p>
+                <div className="account-detail-row">
+                  <p><strong>Username:</strong> {username}</p>
+                  {!isGuest && (
+                    <button
+                      className="account-mini-edit-btn"
+                      onClick={() => this.openEdit("username")}
+                      disabled={saving}
+                    >
+                      Update
+                    </button>
+                  )}
+                </div>
+
+                <div className="account-detail-row">
+                  <p><strong>Email:</strong> {email}</p>
+                  {!isGuest && (
+                    <button
+                      className="account-mini-edit-btn"
+                      onClick={() => this.openEdit("email")}
+                      disabled={saving}
+                    >
+                      Update
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
 
-            <div className="account-actions">
-              {!isGuest && (
-                <>
+            {editOpen && (
+              <div className="account-pop-overlay" onClick={this.closeEdit}>
+                <div className="account-pop-bar" onClick={(e) => e.stopPropagation()}>
+                  <h4 className="account-pop-title">
+                    Update {editField === "username" ? "Username" : "Email"}
+                  </h4>
                   <input
-                    type="text"
-                    placeholder="New username"
-                    value={newUsername}
-                    onChange={(e) => this.setState({ newUsername: e.target.value })}
+                    type={editField === "email" ? "email" : "text"}
                     className="account-input"
+                    value={editValue}
+                    onChange={this.handleEditValueChange}
                     disabled={saving}
                   />
 
-                  <input
-                    type="email"
-                    placeholder="New email"
-                    value={newEmail}
-                    onChange={(e) => this.setState({ newEmail: e.target.value })}
-                    className="account-input"
-                    disabled={saving}
-                  />
+                  {editField === "email" && (
+                    <input
+                      type="password"
+                      className="account-input"
+                      placeholder="Current password"
+                      value={editPassword}
+                      onChange={(e) => this.setState({ editPassword: e.target.value })}
+                      disabled={saving}
+                      style={{ marginTop: "10px" }}
+                    />
+                  )}
+
+                  <div className="account-pop-actions">
+                    <button className="account-action-button" onClick={this.saveInlineEdit} disabled={saving}>
+                      {saving ? "Saving..." : "Save"}
+                    </button>
+                    <button className="account-action-button" onClick={this.closeEdit} disabled={saving}>
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {confirmOpen && (
+              <div className="account-pop-overlay" onClick={this.closeConfirm}>
+                <div className="account-pop-bar account-confirm-bar" onClick={(e) => e.stopPropagation()}>
+                  <h4 className="account-pop-title">Confirm action</h4>
+                  <p className="account-confirm-text">{confirmMessage}</p>
+                  <div className="account-pop-actions">
+                    <button className="account-action-button" onClick={this.closeConfirm} disabled={confirming}>
+                      Cancel
+                    </button>
+                    <button className="account-action-button danger-button" onClick={this.runConfirmAction} disabled={confirming}>
+                      {confirming ? "Please wait..." : "Confirm"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {noticeOpen && (
+              <div className={`account-notice ${noticeType}`}>
+                {noticeMessage}
+              </div>
+            )}
+
+            <div className="account-actions">
+              {isGuest ? (
+                <>
+                  <button
+                    className="account-action-button"
+                    onClick={this.handleGuestToSignup}
+                  >
+                    Sign up
+                  </button>
 
                   <button
                     className="account-action-button"
-                    onClick={this.handleUpdateAccount}
-                    disabled={saving}
+                    onClick={this.handleGuestToSignin}
                   >
-                    {saving ? "Saving..." : "Update account"}
+                    Sign in
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    className="account-action-button danger-button"
+                    onClick={this.handleDelete}
+                  >
+                    Delete account
+                  </button>
+
+                  <button
+                    className="account-action-button"
+                    onClick={this.handleLogOut}
+                  >
+                    Log out
                   </button>
                 </>
               )}
-
-              {isGuest && (
-                <button
-                  className="account-action-button"
-                  onClick={this.handleGuestToSignup}
-                >
-                  Sign up
-                </button>
-              )}
-
-              <button
-                className="account-action-button danger-button"
-                onClick={this.handleDelete}
-              >
-                Delete account
-              </button>
-
-              <button
-                className="account-action-button"
-                onClick={this.handleLogOut}
-              >
-                Log out
-              </button>
             </div>
           </div>
         </div>

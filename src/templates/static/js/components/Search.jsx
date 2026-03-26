@@ -4,7 +4,7 @@ import NavBar from './NavBar';
 import { Bar, Line } from 'react-chartjs-2';
 import WordCloud from "react-wordcloud";
 import * as htmlToImage from "html-to-image";
-
+import { auth } from '../firebase/firebase';
 export const chartOptions = {
   responsive: true,
   legend: false,
@@ -84,8 +84,9 @@ export default class Search extends Component {
       popular_searches: [],
       past_searches: [],
       search_results: {},
-      decade_comparison_results: {}, // Should be empty unless a search with a destination term has been made
-      visualizer_mode: 'bar', //bar, map, decade-comparison
+      decade_comparison_results: {},
+      visualizer_mode: 'bar',
+      isGuest: false, // track guest status
     };
     this.barChartRef = React.createRef();
     this.wordCloudRef = React.createRef();
@@ -203,6 +204,10 @@ export default class Search extends Component {
   }
 
   componentDidMount() {
+    // Check if user is guest
+    const user = auth.currentUser;
+    this.setState({ isGuest: !!user?.isAnonymous });
+
     this.getSearches("popular");
     this.getSearches("past");
     this.getQueryFromUrl();
@@ -404,7 +409,7 @@ export default class Search extends Component {
           </div>
           <div className="form-group" style={{ flex: 2 }}>
             <div className='result-card'>
-              <div className="form-row" style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+              <div className="form-row visualizer-buttons-container" style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
                 <div className="form-group" style={{ flex: 1 }}>
                   <button className='auth-button' onClick={() => this.setState({ visualizer_mode: 'bar' })} disabled={!hasVectorData}>
                     Bar graph
@@ -422,19 +427,23 @@ export default class Search extends Component {
                     </button>
                   </div>
                 }
-                <div className="form-group" style={{ flex: 1 }}>
-                  <button className='auth-button' onClick={() => {
-                    if (this.state.visualizer_mode === 'bar') {
-                      this.downloadChart();
-                    } else if (this.state.visualizer_mode === 'decade-comparison') {
-                      this.downloadDecadeComparison();
-                    } else {
-                      this.downloadMap();
-                    }
-                  }}>
-                    Download
-                  </button>
-                </div>
+
+                {/* Hide Download button for guest users */}
+                {!this.state.isGuest && (
+                  <div className="form-group" style={{ flex: 1 }}>
+                    <button className='auth-button' onClick={() => {
+                      if (this.state.visualizer_mode === 'bar') {
+                        this.downloadChart();
+                      } else if (this.state.visualizer_mode === 'decade-comparison') {
+                        this.downloadDecadeComparison();
+                      } else {
+                        this.downloadMap();
+                      }
+                    }}>
+                      Download
+                    </button>
+                  </div>
+                )}
               </div>
 
               <h4 className='searches-header'>Visualizers</h4>
