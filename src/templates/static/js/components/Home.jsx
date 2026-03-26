@@ -2,12 +2,14 @@
 
 import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
-
+import {auth} from '../firebase/firebase';
+import {signInWithEmailAndPassword,signInAnonymously} from 'firebase/auth';
+import {errorMessage} from '../firebase/firebase';
 class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      username: '',
+      email: '',
       password: '',
       error: '',
       loading: false
@@ -19,38 +21,29 @@ class Login extends Component {
     this.setState({ error: '', loading: true });
 
     try {
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          username: this.state.username, 
-          password: this.state.password 
-        })
-      });
-      
-      const data = await response.json();
-      
-      if (response.ok && data.success) {
-        this.props.history.push('/search');
-      } else {
-        this.setState({ 
-          error: data.message || 'Login failed. Please try again.',
-          loading: false
-        });
-      }
-    } catch (err) {
-      // Ignore error for now and go to search page
+      await signInWithEmailAndPassword(auth, this.state.email, this.state.password);
       this.props.history.push('/search');
-
-      // this.setState({ 
-      //   error: 'Network error. Please try again later.',
-      //   loading: false
-      // });
+    } catch (err) {
+      this.setState({ error: errorMessage(err), loading: false });
+      //add a pop up for error message
+      alert(err.message);
     }
   }
+  handleGuestLogin = async () => {
+    this.setState({ error: '', loading: true });
+
+    try {
+      const userCredential = await signInAnonymously(auth);
+        console.log('Guest user signed in:', userCredential.user);
+      this.props.history.push('/search');
+    } catch (err) {
+      this.setState({ error: errorMessage(err), loading: false });
+      alert(err.message);
+    }
+  };
 
   render() {
-    const { username, password, error, loading } = this.state;
+    const { email, password, error, loading } = this.state;
     
     return (
     <div className="auth-container">
@@ -65,17 +58,18 @@ class Login extends Component {
         
         <form onSubmit={this.handleSubmit} className="auth-form">
           <div className="form-group">
-            <label htmlFor="username">Username</label>
+            <label htmlFor="email">Email</label>
             <input
-              type="text"
-              id="username"
-              value={username}
-              onChange={(e) => this.setState({ username: e.target.value })}
-              placeholder="Enter your username"
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => this.setState({ email: e.target.value })}
+              placeholder="Enter your email"
               required
               disabled={loading}
             />
           </div>
+        
           
           <div className="form-group">
             <label htmlFor="password">Password</label>
@@ -93,6 +87,17 @@ class Login extends Component {
           <button type="submit" className="auth-button" disabled={loading}>
             {loading ? 'Logging in...' : 'Login'}
           </button>
+            
+                <button
+              type="button"
+              className="auth-button"
+              disabled={loading}
+              onClick={this.handleGuestLogin}
+              style={{ marginTop: '10px' }}
+            >
+              {loading ? 'Please wait...' : 'Continue as Guest'}
+            </button>
+     
         </form>
         
         <div className="auth-links">

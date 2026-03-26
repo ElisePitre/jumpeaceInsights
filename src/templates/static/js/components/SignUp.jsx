@@ -1,6 +1,11 @@
 import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
+import {auth} from '../firebase/firebase';
+import {createUserWithEmailAndPassword,linkWithCredential,updateProfile} from 'firebase/auth';
+import {signInWithEmailAndPassword} from 'firebase/auth';
+import {EmailAuthProvider} from 'firebase/auth';
 
+import {errorMessage} from '../firebase/firebase';
 class SignUp extends Component {
   constructor(props) {
     super(props);
@@ -9,11 +14,20 @@ class SignUp extends Component {
       email: '',
       password: '',
       confirmPassword: '',
+      uid:'',
       error: '',
       loading: false
     };
   }
 
+  componentDidMount() {
+    const params = new URLSearchParams(this.props.location.search);
+    const uidFromUrl = params.get('guestUid') || params.get('uid') || '';
+    if (uidFromUrl) {
+      this.setState({ uid: uidFromUrl });
+    }
+    console.log('Extracted UID from URL:', uidFromUrl);
+  }
   handleChange = (e) => {
     this.setState({
       [e.target.name]: e.target.value
@@ -34,37 +48,27 @@ class SignUp extends Component {
       this.setState({ error: 'Password must be at least 8 characters long' });
       return;
     }
+    
 
     this.setState({ loading: true });
 
     try {
-      const response = await fetch('/api/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: this.state.username,
-          email: this.state.email,
-          password: this.state.password
-        })
-      });
-      
-      const data = await response.json();
-      
-      if (response.ok && data.success) {
-        this.props.history.push('/search');
+      if (this.state.uid!='') {
+        // If there's a guest UID, we need to link the anonymous account to the new email/password account
+        const credential = EmailAuthProvider.credential(this.state.email, this.state.password);
+        await linkWithCredential(auth.currentUser, credential);
+        await updateProfile(auth.currentUser, { displayName: this.state.username });
+       
       } else {
-        this.setState({ 
-          error: data.message || 'Sign up failed. Please try again.',
-          loading: false
-        });
-      }
-    } catch (err) {
-      // Ignore error for now and go to search page
+        // No guest UID, just create a new account  
+      const userCredential = await createUserWithEmailAndPassword(auth, this.state.email, this.state.password);
+      await updateProfile(userCredential.user, { displayName: this.state.username });}
       this.props.history.push('/search');
-      // this.setState({ 
-      //   error: 'Network error. Please try again later.',
-      //   loading: false
-      // });
+    } catch (err) {
+      this.setState({ error: errorMessage(err), loading: false });
+      console.error('Error during sign up:', err);
+
+  
     }
   }
 

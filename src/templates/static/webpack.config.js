@@ -10,14 +10,29 @@ const config = {
   publicPath: resolve('../public')
  },
  resolve: {
-  extensions: ['.js', '.jsx', '.json','.css']
+  extensions: ['.js', '.jsx', '.json', '.css']
  },
  module: {
   rules: [
    {
-    test: /\.jsx?/,
-    loader: 'babel-loader',
-    exclude: /node_modules|\.json$/
+    test: /\.jsx?$/,   // <-- added $ anchor to prevent matching .json
+    exclude: modulePath =>
+      /\.json$/.test(modulePath) ||   // <-- exclude JSON files
+      (/node_modules/.test(modulePath) &&
+      !/node_modules[\\/](firebase|@firebase)/.test(modulePath)),
+    use: {
+     loader: 'babel-loader',
+     options: {
+      presets: [
+       '@babel/preset-env',
+       '@babel/preset-react'
+      ],
+      plugins: [
+       '@babel/plugin-proposal-optional-chaining',
+       '@babel/plugin-proposal-nullish-coalescing-operator'
+      ]
+     }
+    }
    },
    {
     test: /\.css$/,
@@ -25,7 +40,7 @@ const config = {
    },
    {
     test: /\.json$/,
-    type: 'json',  // <- native JSON support
+    type: 'json',
    },
   ]
  }
