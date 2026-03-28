@@ -1,0 +1,135 @@
+{
+  "results": {
+    "search": "women",
+    "vectors": [
+      {
+        "word": "dren",
+        "vector": 0.86
+      },
+      {
+        "word": "chill",
+        "vector": 0.86
+      },
+      {
+        "word": "boys",
+        "vector": 0.84
+      },
+      {
+        "word": "youths",
+        "vector": 0.84
+      },
+      {
+        "word": "girls",
+        "vector": 0.82
+      },
+      {
+        "word": "thread",
+        "vector": 0.82
+      },
+      {
+        "word": "depreciation",
+        "vector": 0.82
+      },
+      {
+        "word": "maids",
+        "vector": 0.81
+      },
+      {
+        "word": "meas",
+        "vector": 0.81
+      },
+      {
+        "word": "children",
+        "vector": 0.81
+      },
+      {
+        "word": "mems",
+        "vector": 0.8
+      },
+      {
+        "word": "patterns",
+        "vector": 0.8
+      },
+      {
+        "word": "womens",
+        "vector": 0.79
+      },
+      {
+        "word": "dreams",
+        "vector": 0.79
+      },
+      {
+        "word": "mens",
+        "vector": 0.79
+      },
+      {
+        "word": "breeches",
+        "vector": 0.79
+      },
+      {
+        "word": "hofc",
+        "vector": 0.78
+      },
+      {
+        "word": "stockings",
+        "vector": 0.78
+      },
+      {
+        "word": "rays",
+        "vector": 0.78
+      },
+      {
+        "word": "yarn",
+        "vector": 0.77
+      },
+      {
+        "word": "chiefs",
+        "vector": 0.77
+      },
+      {
+        "word": "whip",
+        "vector": 0.76
+      },
+      {
+        "word": "grape",
+        "vector": 0.76
+      },
+      {
+        "word": "hole",
+        "vector": 0.76
+      },
+      {
+        "word": "hoe",
+        "vector": 0.76
+      },
+      {
+        "word": "kid",
+        "vector": 0.76
+      },
+      {
+        "word": "ches",
+        "vector": 0.76
+      },
+      {
+        "word": "twin",
+        "vector": 0.75
+      },
+      {
+        "word": "pack",
+        "vector": 0.75
+      },
+      {
+        "word": "beau",
+        "vector": 0.75
+      },
+      {
+        "word": "jacket",
+        "vector": 0.75
+      },
+      {
+        "word": "hofe",
+        "vector": 0.75
+      }
+    ]
+  }
+}

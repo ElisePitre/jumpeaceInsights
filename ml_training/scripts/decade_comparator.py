@@ -275,6 +275,36 @@ def save_comparison(term_a, term_b, results, output_path="results.json"):
 
     print("Saved to %s" % output_path)
 
+def save_search_results(term_a, weighted_results, output_path="search-results.json"):
+    """
+    Save weighted word search results to a JSON file in the
+    same format as search-results.json.
+
+    Parameters
+    ----------
+    term_a           : str – the search word
+    weighted_results : list[dict] – output from get_weighted_top_words()
+                       or get_weighted_all_words(), each dict has
+                       "word" and "weighted_similarity"
+    output_path      : str – file path to write
+    """
+    vectors = [
+        {"word": row["word"], "vector": round(row["weighted_similarity"], 2)}
+        for row in weighted_results
+    ]
+
+    output = {
+        "results": {
+            "search": term_a,
+            "vectors": vectors
+        }
+    }
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(output, f, indent=2)
+
+    print("Saved search results to %s" % output_path)
+
 def get_weighted_top_words(term_a, start_year, end_year, topn=50):
     """
     Get the top N most associated words to term_a, weighted by
@@ -484,6 +514,11 @@ if __name__ == "__main__":
             row["decades_found"]
         ))
 
+    # save filtered results
+    filtered = [r for r in results
+                if r["decades_found"] >= num_loaded_decades
+                and r["weighted_similarity"] >= 0.75]
+    save_search_results(TERM_A, filtered, "search-results.json")
 
 
 ##FOR TESTING PAIRS
@@ -512,3 +547,40 @@ if __name__ == "__main__":
 
     # Save for React to use as a static fixture while API is being built
     save_comparison(TERM_A, TERM_B, results, "results.json")
+
+    # Weighted average across the entire range
+    weighted_avg = calculate_weighted_average(TERM_A, TERM_B, START_YEAR, END_YEAR, results)
+    print("\nWeighted Average Similarity: %s" % (
+        "%.4f" % weighted_avg if weighted_avg is not None else "n/a"
+    ))
+
+    # Show the calculation breakdown
+    print("\n--- Calculation Breakdown ---")
+    pairs = []
+    for row in results:
+        if row["similarity"] is None:
+            continue
+        path = DECADE_MODEL_PATHS.get(row["decade"])
+        if path is None:
+            continue
+        wv = load_model(path)
+        if wv is None:
+            continue
+        try:
+            count = wv.get_vecattr(TERM_A.strip().lower(), "count")
+        except KeyError:
+            count = 1
+        pairs.append((row["decade"], row["similarity"], count))
+
+    total_count = sum(c for _, _, c in pairs)
+    print("Total count of '%s' across decades: %d\n" % (TERM_A, total_count))
+    print("%-10s  %-10s  %-12s  %-10s  %s" % (
+        "Decade", "Count", "Pct", "Cosine", "Contribution"))
+    print("-" * 60)
+    for label, sim, count in pairs:
+        pct = count / total_count
+        contrib = pct * sim
+        print("%-10s  %-10d  %-12.2f%%  %-10.4f  %.4f" % (
+            label, count, pct * 100, sim, contrib))
+    print("-" * 60)
+    print("Sum of contributions = %.4f" % weighted_avg)
