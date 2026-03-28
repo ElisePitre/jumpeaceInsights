@@ -5,7 +5,7 @@ import sys
 import psycopg2
 from flask import Flask, request, jsonify
 import time
-from api.modelAPI import selectModel, query
+from api.modelAPI import selectModels, calculate_weighted_average, merge_corrected_words
 
 app = Flask(__name__)
 
@@ -13,15 +13,21 @@ app = Flask(__name__)
 def processQuery():
     data = request.get_json()
 
-    if not data or 'query' not in data:
+    if not data or 'query_word' not in data:
         return jsonify({"error": "Missing data field"}), 400
 
-    model = selectModel(data['start_time'], data['end_time'])
-    results = query(model, data['query_word'], data['destination_word'])
+    models = selectModels(data['start_time'], data['end_time'])
+    results = calculate_weighted_average(data['query_word'], data['start_time'], data['end_time'], models)
+    results = merge_corrected_words(results)
 
+    # Sort and trim to top 100
+    results.sort(key=lambda x: x["weighted_similarity"], reverse=True)
+    top_results = results[:100]
+
+    # Return top 100 results
     return jsonify({
         "query": data['query_word'],
-        "results": results
+        "results": top_results
     })
 
 @app.route("/searchCount", methods=["GET"])
