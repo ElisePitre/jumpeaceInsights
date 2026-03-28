@@ -54,12 +54,12 @@ nltk.download("stopwords", quiet=True)
 STOP_WORDS = set(stopwords.words("english"))
 
 # ── Config ────────────────────────────────────────────────────────────────
-START_YEAR        = 1850    # earliest year in AmericanStories CHANGE THIS YEARS
-END_YEAR          = 1869    # latest year in AmericanStories
+START_YEAR        = 1770    # earliest year in AmericanStories CHANGE THIS YEARS
+END_YEAR          = 1964    # latest year in AmericanStories
 MAX_ROWS_PER_YEAR = 50_000  # cap applied per year, not per decade
-                            # lower to 10_000 if RAM is tight
+                            # might lower to 10_000 if RAM is tight
 
-# Keep this alias so main.py import doesn't break
+# Keep this alias so main.py import doesn't break due to the rename from MAX_ROWS_PER_DECADE to MAX_ROWS_PER_YEAR
 MAX_ROWS_PER_DECADE = MAX_ROWS_PER_YEAR
 
 # Dataset identifier on HuggingFace
