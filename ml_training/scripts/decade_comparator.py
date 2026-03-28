@@ -197,14 +197,64 @@ def calculate_weighted_average(term_a, term_b, start_year, end_year, results):
     """
     Calculate a single weighted average similarity score across decades.
 
+    Each decade's cosine similarity is weighted by the count of term_a
+    in that decade's vocabulary.  Decades where the word appears more
+    often contribute proportionally more to the final score.
+
+    Formula:
+        weighted_avg = Σ (count_i / total_count) * similarity_i
+
+    Parameters
+    ----------
+    term_a     : str – source word
+    term_b     : str – target word
+    start_year : int – inclusive lower bound
+    end_year   : int – inclusive upper bound
+    results    : list[dict] – output from compare_across_decades()
+
+    Returns
+    -------
+    float or None
     """
-    valid_scores = [row["similarity"] for row in results if row["similarity"] is not None]
+    term_a = term_a.strip().lower()
 
-    if not valid_scores:
-        return None  # no valid scores to average
+    # Collect (similarity, count) pairs for each decade that has a valid score
+    weighted_pairs = []
 
-    average = sum(valid_scores) / len(valid_scores)
-    return round(average, 4)
+    for row in results:
+        if row["similarity"] is None:
+            continue
+
+        label = row["decade"]
+        decade_year = int(label[:4])
+
+        # load the model to grab the word count
+        path = DECADE_MODEL_PATHS.get(label)
+        if path is None:
+            continue
+
+        wv = load_model(path)
+        if wv is None:
+            continue
+
+        try:
+            count = wv.get_vecattr(term_a, "count")
+        except KeyError:
+            count = 1  # fallback if count unavailable
+
+        weighted_pairs.append((row["similarity"], count))
+
+    if not weighted_pairs:
+        return None
+
+    total_count = sum(count for _, count in weighted_pairs)
+
+    weighted_avg = sum(
+        (count / total_count) * sim
+        for sim, count in weighted_pairs
+    )
+
+    return round(weighted_avg, 4)
 
 def save_comparison(term_a, term_b, results, output_path="results.json"):
     """
@@ -395,23 +445,17 @@ if __name__ == "__main__":
         level  = logging.INFO,
         format = "%(asctime)s [%(levelname)s] %(message)s"
     )
+    # suppress gensim's verbose model-loading logs and our own warnings
+    logging.getLogger("gensim").setLevel(logging.ERROR)
+    logging.getLogger(__name__).setLevel(logging.ERROR)
 
 ## testing weighted average
     TERM_A     = "women"
     START_YEAR = 1770
     END_YEAR   = 1790
 
-    results = get_weighted_all_words(TERM_A, START_YEAR, END_YEAR)
-
-    print("\n%-20s  %-22s  %s" % ("Word", "Weighted Similarity", "Decades Found"))
-    print("-" * 55)
-    for row in results:
-        print("%-20s  %-22.4f  %d" % (
-            row["word"],
-            row["weighted_similarity"],
-            row["decades_found"]
-        ))
-
+    # count how many decades actually loaded
+    num_loaded_decades = 0
     for label, path in DECADE_MODEL_PATHS.items():
         decade_year = int(label[:4])
         if decade_year < START_YEAR or decade_year > END_YEAR:
@@ -419,7 +463,26 @@ if __name__ == "__main__":
         wv = load_model(path)
         if wv is None:
             continue
-        print(f"{label}: 'women' in vocab = {'women' in wv}")
+        num_loaded_decades += 1
+        print(f"{label}: '{TERM_A}' in vocab = {TERM_A in wv}")
+
+    print(f"\nLoaded decades: {num_loaded_decades}")
+    print("Only showing words found in ALL %d decades.\n" % num_loaded_decades)
+
+    results = get_weighted_all_words(TERM_A, START_YEAR, END_YEAR)
+
+    print("%-20s  %-22s  %s" % ("Word", "Weighted Similarity", "Decades Found"))
+    print("-" * 55)
+    for row in results:
+        if row["decades_found"] < num_loaded_decades:
+            continue
+        if row["weighted_similarity"] < 0.75:
+            continue
+        print("%-20s  %-22.4f  %d" % (
+            row["word"],
+            row["weighted_similarity"],
+            row["decades_found"]
+        ))
 
 
 
