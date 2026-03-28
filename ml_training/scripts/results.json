@@ -1,0 +1,18 @@
+{
+  "term_a": "war",
+  "term_b": "immediate",
+  "results": [
+    {
+      "decade": "1770s",
+      "similarity": 0.2627
+    },
+    {
+      "decade": "1790s",
+      "similarity": 0.3289
+    },
+    {
+      "decade": "1800s",
+      "similarity": 0.0796
+    }
+  ]
+}
