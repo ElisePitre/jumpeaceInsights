@@ -9,13 +9,25 @@ from gensim.models import Word2Vec
 def selectModels(startDecade, endDecade):
     models = {}
     for curDecade in range(startDecade, endDecade, 10):
-        model_path = hf_hub_download(
-            repo_id="puneetchdry/w2v_models_jumpeace",
-            filename=f"word2vec_{curDecade}s.model",  
-        )
-
-        models[f"{curDecade}s"] = model_path
-
+        try:
+            model_path = hf_hub_download(
+                repo_id="puneetchdry/w2v_models_jumpeace",
+                filename=f"word2vec_{curDecade}s.model",
+            )
+            try:
+                hf_hub_download(
+                    repo_id="puneetchdry/w2v_models_jumpeace",
+                    filename=f"word2vec_{curDecade}s.model.syn1neg.npy",
+                )
+                hf_hub_download(
+                    repo_id="puneetchdry/w2v_models_jumpeace",
+                    filename=f"word2vec_{curDecade}s.model.wv.vectors.npy",
+                )
+            except Exception:
+                pass  # companion files missing, Gensim will handle it
+            models[f"{curDecade}s"] = model_path
+        except Exception as e:
+            print(f"Model not found for {curDecade}s: {e}")
     return models
 
 # This function should load the model from the given path and return the word vectors

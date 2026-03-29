@@ -35,11 +35,23 @@ def load_model(decade_label):
     Returns None if the model doesn't exist on the Hub so callers
     can skip missing decades gracefully.
     """
+
     try:
         model_path = hf_hub_download(
             repo_id="puneetchdry/w2v_models_jumpeace",
             filename=f"word2vec_{decade_label}.model",
         )
+        try:
+            hf_hub_download(
+                repo_id="puneetchdry/w2v_models_jumpeace",
+                filename=f"word2vec_{decade_label}.model.syn1neg.npy",
+            )
+            hf_hub_download(
+                repo_id="puneetchdry/w2v_models_jumpeace",
+                filename=f"word2vec_{decade_label}.model.wv.vectors.npy",
+            )
+        except Exception:
+            pass  # companion files missing, skip (1830s below doesnt have companion files, but still loads fine)
         model = Word2Vec.load(model_path)
         return model.wv
     except Exception as e:

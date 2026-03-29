@@ -16,7 +16,7 @@ data = {
     "query_word":       "war",
     "destination_word": "freedom",
     "start_year":       1770,
-    "end_year":         1880
+    "end_year":         1964
 }
 response = requests.post(url, json=data)
 print("Decade route:", response.json())
