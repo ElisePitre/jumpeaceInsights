@@ -1,12 +1,8 @@
-import os
-from dotenv import load_dotenv
-import json
-import sys
-import psycopg2
 from flask import Flask, request, jsonify
 import time
-from api.modelAPI import selectModels, calculate_weighted_average, merge_corrected_words
-from api.decadeAPI import selectModel as decadeSelectModel, query as decadeQuery  
+from api.modelAPI import selectModels, calculate_weighted_average
+from api.decadeAPI import selectModel as decadeSelectModel, query as decadeQuery
+from api.cleanResultsAPI import clean_results
 
 app = Flask(__name__)
 
@@ -14,16 +10,19 @@ app = Flask(__name__)
 def processQuery():
     data = request.get_json()
 
-    if not data or 'query_word' not in data:
-        return jsonify({"error": "Missing data field"}), 400
+    if not data:
+        return jsonify({"error": "Missing data"}), 400
 
-    models = selectModels(data['start_time'], data['end_time'])
-    results = calculate_weighted_average(data['query_word'], data['start_time'], data['end_time'], models)
+    missing = [f for f in ["query_word", "start_year", "end_year", "clean_results"] if f not in data]
+    if missing:
+        return jsonify({"error": "Missing fields: %s" % missing}), 400
+
+    models = selectModels(data['start_year'], data['end_year'])
+    results = calculate_weighted_average(data['query_word'], data['start_year'], data['end_year'], models)
 
     # Check clean_results parameter to correct and merge words
     if (data['clean_results'] == True):
-        results = merge_corrected_words(results)
-
+        results = clean_results(results)
 
     # Sort and trim to top 100
     results.sort(key=lambda x: x["weighted_similarity"], reverse=True)
@@ -35,7 +34,7 @@ def processQuery():
         "results": top_results
     })
 
-@app.route("/decade/compare", methods=["POST"]) 
+@app.route("/decade/compare", methods=["POST"])
 def decadeCompare():
     data = request.get_json()
     if not data:
