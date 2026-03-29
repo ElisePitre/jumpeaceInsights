@@ -18,7 +18,11 @@ def processQuery():
 
     models = selectModels(data['start_time'], data['end_time'])
     results = calculate_weighted_average(data['query_word'], data['start_time'], data['end_time'], models)
-    results = merge_corrected_words(results)
+
+    # Check clean_results parameter to correct and merge words
+    if (data['clean_results'] == True):
+        results = merge_corrected_words(results)
+
 
     # Sort and trim to top 100
     results.sort(key=lambda x: x["weighted_similarity"], reverse=True)
