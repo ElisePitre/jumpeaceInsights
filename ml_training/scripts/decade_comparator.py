@@ -14,59 +14,37 @@ import numpy as np
 import json
 import logging
 from gensim.models import Word2Vec
+from huggingface_hub import hf_hub_download
 
 log = logging.getLogger(__name__)
 
-#  Config
-MODELS_DIR = MODELS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "w2v_models")
-
-# Maps decade labels to saved model filenames
-# Add or remove decades here as you train more models
-#"<XXXX>s": os.path.join(MODELS_DIR, "word2vec_<XXXX>s.model")
-DECADE_MODEL_PATHS = {
-    "1770s": os.path.join(MODELS_DIR, "word2vec_1770s.model"),
-    "1780s": os.path.join(MODELS_DIR, "word2vec_1780s.model"), #MARK this isnt trained
-    "1790s": os.path.join(MODELS_DIR, "word2vec_1790s.model"),
-    "1800s": os.path.join(MODELS_DIR, "word2vec_1800s.model"),
-    "1810s": os.path.join(MODELS_DIR, "word2vec_1810s.model"),
-    "1820s": os.path.join(MODELS_DIR, "word2vec_1820s.model"),
-    "1830s": os.path.join(MODELS_DIR, "word2vec_1830s.model"),
-    "1840s": os.path.join(MODELS_DIR, "word2vec_1840s.model"),
-    "1850s": os.path.join(MODELS_DIR, "word2vec_1850s.model"),
-    "1860s": os.path.join(MODELS_DIR, "word2vec_1860s.model"),
-    "1870s": os.path.join(MODELS_DIR, "word2vec_1870s.model"),
-    "1880s": os.path.join(MODELS_DIR, "word2vec_1880s.model"),
-    "1890s": os.path.join(MODELS_DIR, "word2vec_1890s.model"),
-    "1900s": os.path.join(MODELS_DIR, "word2vec_1900s.model"),
-    "1910s": os.path.join(MODELS_DIR, "word2vec_1910s.model"),
-    "1920s": os.path.join(MODELS_DIR, "word2vec_1920s.model"),
-    "1930s": os.path.join(MODELS_DIR, "word2vec_1930s.model"),
-    "1940s": os.path.join(MODELS_DIR, "word2vec_1940s.model"),
-    "1950s": os.path.join(MODELS_DIR, "word2vec_1950s.model"),
-    "1960s": os.path.join(MODELS_DIR, "word2vec_1960s.model"),
-}
+DECADE_LABELS = [
+    "1770s", "1780s", "1790s", "1800s", "1810s", "1820s", "1830s",
+    "1840s", "1850s", "1860s", "1870s", "1880s", "1890s", "1900s",
+    "1910s", "1920s", "1930s", "1940s", "1950s", "1960s",
+]
 
 
 # ── Core functions ────────
 
-def load_model(path):
+def load_model(decade_label):
     """
-    Load a saved Word2Vec model from disk.
+    Load a Word2Vec model from HuggingFace Hub.
     Returns the model's word vectors (wv) object.
 
-    We only need wv for mapping of the KeyedVectors object that maps
-    words to their numpy vectors. We don't need the full
-    model since we're not training anymore.
-
-    Returns None if the file doesn't exist so callers
+    Returns None if the model doesn't exist on the Hub so callers
     can skip missing decades gracefully.
     """
-    if not os.path.exists(path):
-        log.warning("Model not found, skipping: %s", path)
+    try:
+        model_path = hf_hub_download(
+            repo_id="puneetchdry/w2v_models_jumpeace",
+            filename=f"word2vec_{decade_label}.model",
+        )
+        model = Word2Vec.load(model_path)
+        return model.wv
+    except Exception as e:
+        log.warning("Model not found for %s: %s", decade_label, e)
         return None
-
-    model = Word2Vec.load(path)
-    return model.wv
 
 
 def cosine_similarity(vec_a, vec_b):
@@ -76,15 +54,13 @@ def cosine_similarity(vec_a, vec_b):
     Returns a float between 0.0 and 1.0.
       1.0 = vectors point same direction = strong association
       0.0 = vectors perpendicular = no association
-
-
     """
     dot   = np.dot(vec_a, vec_b)
     mag_a = np.linalg.norm(vec_a)
     mag_b = np.linalg.norm(vec_b)
 
-    # guard against zero vectors -- shouldn't happen with
-    # trained models but safer to check
+    # 0 vectors can cause division by zero, 
+    # so we return 0 similarity in that case
     if mag_a == 0 or mag_b == 0:
         return 0.0
 
@@ -115,8 +91,8 @@ def compare_single_decade(wv, term_a, term_b):
     if term_b not in wv:
         return {"error": "'%s' not in this decade's vocabulary" % term_b}
 
-    vec_a = np.array(wv[term_a])   # shape: (vector_size,) e.g. (200,)
-    vec_b = np.array(wv[term_b])   # shape: (vector_size,)
+    vec_a = np.array(wv[term_a])
+    vec_b = np.array(wv[term_b])
 
     score = cosine_similarity(vec_a, vec_b)
 
@@ -135,7 +111,6 @@ def compare_across_decades(term_a, term_b, start_year=None, end_year=None):
     term_a     : source word e.g. "women"
     term_b     : destination word e.g. "work"
     start_year : optional int filter e.g. 1850
-                 (matches against first 4 chars of decade label)
     end_year   : optional int filter e.g. 1950
 
     Returns
@@ -147,27 +122,23 @@ def compare_across_decades(term_a, term_b, start_year=None, end_year=None):
       {"decade": "1870s", "similarity": None, "note": "'work' not in vocabulary"},
       ...
     ]
-
-    Decades where the model file doesn't exist are silently skipped.
-    Decades where a term is missing get similarity: None with a note.
     """
     term_a = term_a.strip().lower()
     term_b = term_b.strip().lower()
 
     results = []
 
-    for label, path in DECADE_MODEL_PATHS.items():
+    for label in DECADE_LABELS:
 
-        # apply date range filter if provided
-        decade_year = int(label[:4])   # "1850s" -> 1850
+        decade_year = int(label[:4])
         if start_year and decade_year < start_year:
             continue
-        if end_year   and decade_year > end_year:
+        if end_year and decade_year > end_year:
             continue
 
-        wv = load_model(path)
+        wv = load_model(label)
         if wv is None:
-            continue   # model file not trained, skip for now
+            continue
 
         result = compare_single_decade(wv, term_a, term_b)
 
@@ -177,8 +148,6 @@ def compare_across_decades(term_a, term_b, start_year=None, end_year=None):
                 "similarity" : result["similarity"]
             })
         else:
-            # if word was missing -- still include the decade so the
-            # frontend included gap in dummy values for erro checkl
             results.append({
                 "decade"     : label,
                 "similarity" : None,
@@ -193,13 +162,13 @@ def compare_across_decades(term_a, term_b, start_year=None, end_year=None):
 
     return results
 
+
 def calculate_weighted_average(term_a, term_b, start_year, end_year, results):
     """
     Calculate a single weighted average similarity score across decades.
 
     Each decade's cosine similarity is weighted by the count of term_a
-    in that decade's vocabulary.  Decades where the word appears more
-    often contribute proportionally more to the final score.
+    in that decade's vocabulary.
 
     Formula:
         weighted_avg = Σ (count_i / total_count) * similarity_i
@@ -218,7 +187,6 @@ def calculate_weighted_average(term_a, term_b, start_year, end_year, results):
     """
     term_a = term_a.strip().lower()
 
-    # Collect (similarity, count) pairs for each decade that has a valid score
     weighted_pairs = []
 
     for row in results:
@@ -226,21 +194,15 @@ def calculate_weighted_average(term_a, term_b, start_year, end_year, results):
             continue
 
         label = row["decade"]
-        decade_year = int(label[:4])
 
-        # load the model to grab the word count
-        path = DECADE_MODEL_PATHS.get(label)
-        if path is None:
-            continue
-
-        wv = load_model(path)
+        wv = load_model(label)
         if wv is None:
             continue
 
         try:
             count = wv.get_vecattr(term_a, "count")
         except KeyError:
-            count = 1  # fallback if count unavailable
+            count = 1
 
         weighted_pairs.append((row["similarity"], count))
 
@@ -256,13 +218,10 @@ def calculate_weighted_average(term_a, term_b, start_year, end_year, results):
 
     return round(weighted_avg, 4)
 
+
 def save_comparison(term_a, term_b, results, output_path="results.json"):
     """
     Save compare_across_decades output to a JSON file.
-
-    Useful for testing without running Flask --
-    you can inspect the file directly or load it in React
-    as a static fixture while the API is being wired up.
     """
     output = {
         "term_a"  : term_a,
@@ -275,18 +234,10 @@ def save_comparison(term_a, term_b, results, output_path="results.json"):
 
     print("Saved to %s" % output_path)
 
+
 def save_search_results(term_a, weighted_results, output_path="search-results.json"):
     """
-    Save weighted word search results to a JSON file in the
-    same format as search-results.json.
-
-    Parameters
-    ----------
-    term_a           : str – the search word
-    weighted_results : list[dict] – output from get_weighted_top_words()
-                       or get_weighted_all_words(), each dict has
-                       "word" and "weighted_similarity"
-    output_path      : str – file path to write
+    Save weighted word search results to a JSON file.
     """
     vectors = [
         {"word": row["word"], "vector": round(row["weighted_similarity"], 2)}
@@ -305,33 +256,17 @@ def save_search_results(term_a, weighted_results, output_path="search-results.js
 
     print("Saved search results to %s" % output_path)
 
+
 def get_weighted_top_words(term_a, start_year, end_year, topn=50):
     """
     Get the top N most associated words to term_a, weighted by
     word count across all decades in the given range.
-
-    Parameters
-    ----------
-    term_a     : source word e.g. "war"
-    start_year : int e.g. 1800
-    end_year   : int e.g. 1900
-    topn       : number of top words to return (default 50)
-
-    Returns
-    -------
-    List of dicts sorted by weighted similarity descending:
-    [
-      {"word": "freedom", "weighted_similarity": 0.87, "decades_found": 4},
-      {"word": "liberty", "weighted_similarity": 0.81, "decades_found": 6},
-      ...
-    ]
     """
     term_a = term_a.strip().lower()
 
-    # { "freedom": [{"cosine": 0.87, "count": 4200}, ...], ... }
     word_decade_data = {}
 
-    for label, path in DECADE_MODEL_PATHS.items():
+    for label in DECADE_LABELS:
 
         decade_year = int(label[:4])
         if start_year and decade_year < start_year:
@@ -339,7 +274,7 @@ def get_weighted_top_words(term_a, start_year, end_year, topn=50):
         if end_year and decade_year > end_year:
             continue
 
-        wv = load_model(path)
+        wv = load_model(label)
         if wv is None:
             continue
 
@@ -347,14 +282,12 @@ def get_weighted_top_words(term_a, start_year, end_year, topn=50):
             log.info("  %s: '%s' not in vocabulary -- skipping", label, term_a)
             continue
 
-        # get top N similar words for this decade
         similar = wv.most_similar(term_a, topn=topn)
 
-        # get the count for term_a in this decade as the weight
         try:
             term_a_count = wv.get_vecattr(term_a, "count")
         except KeyError:
-            term_a_count = 1  # fallback if count unavailable
+            term_a_count = 1
 
         for word, cosine in similar:
             if word not in word_decade_data:
@@ -369,7 +302,6 @@ def get_weighted_top_words(term_a, start_year, end_year, topn=50):
     if not word_decade_data:
         return []
 
-    # calculate weighted average per word
     weighted_results = []
 
     for word, decade_entries in word_decade_data.items():
@@ -387,23 +319,20 @@ def get_weighted_top_words(term_a, start_year, end_year, topn=50):
             "decades_found":       len(decade_entries)
         })
 
-    # sort by weighted similarity descending, return top N
     weighted_results.sort(key=lambda x: x["weighted_similarity"], reverse=True)
     return weighted_results[:topn]
+
 
 def get_weighted_all_words(term_a, start_year, end_year):
     """
     Calculate weighted average cosine similarity between term_a
     and EVERY word in the vocabulary across all decades.
-
-    Instead of most_similar(topn=50), we compute cosine similarity
-    against the full vocabulary manually.
     """
     term_a = term_a.strip().lower()
 
     word_decade_data = {}
 
-    for label, path in DECADE_MODEL_PATHS.items():
+    for label in DECADE_LABELS:
 
         decade_year = int(label[:4])
         if start_year and decade_year < start_year:
@@ -411,7 +340,7 @@ def get_weighted_all_words(term_a, start_year, end_year):
         if end_year and decade_year > end_year:
             continue
 
-        wv = load_model(path)
+        wv = load_model(label)
         if wv is None:
             continue
 
@@ -426,11 +355,10 @@ def get_weighted_all_words(term_a, start_year, end_year):
         except KeyError:
             term_a_count = 1
 
-        # iterate over every word in this decade's vocabulary
         for word in wv.key_to_index:
 
             if word == term_a:
-                continue  # skip self
+                continue
 
             vec_b  = np.array(wv[word])
             cosine = cosine_similarity(vec_a, vec_b)
@@ -447,7 +375,6 @@ def get_weighted_all_words(term_a, start_year, end_year):
     if not word_decade_data:
         return []
 
-    # weighted average per word
     weighted_results = []
 
     for word, decade_entries in word_decade_data.items():
@@ -468,14 +395,13 @@ def get_weighted_all_words(term_a, start_year, end_year):
     return weighted_results
 
 
-# ENTRY POINT FOR RUNNING PROGRAM. Modify under "FOR TESTING PAIRS, Change TERM_B,TEAM_A AND START_yEAR AND END_YEAR
+# ENTRY POINT FOR RUNNING PROGRAM. Modify TERM_A, TERM_B, START_YEAR, END_YEAR below.
 if __name__ == "__main__":
 
     logging.basicConfig(
         level  = logging.INFO,
         format = "%(asctime)s [%(levelname)s] %(message)s"
     )
-    # suppress gensim's verbose model-loading logs and our own warnings
     logging.getLogger("gensim").setLevel(logging.ERROR)
     logging.getLogger(__name__).setLevel(logging.ERROR)
 
@@ -484,13 +410,12 @@ if __name__ == "__main__":
     START_YEAR = 1770
     END_YEAR   = 1790
 
-    # count how many decades actually loaded
     num_loaded_decades = 0
-    for label, path in DECADE_MODEL_PATHS.items():
+    for label in DECADE_LABELS:
         decade_year = int(label[:4])
         if decade_year < START_YEAR or decade_year > END_YEAR:
             continue
-        wv = load_model(path)
+        wv = load_model(label)
         if wv is None:
             continue
         num_loaded_decades += 1
@@ -514,7 +439,6 @@ if __name__ == "__main__":
             row["decades_found"]
         ))
 
-    # save filtered results
     filtered = [r for r in results
                 if r["decades_found"] >= num_loaded_decades
                 and r["weighted_similarity"] >= 0.75]
@@ -535,7 +459,6 @@ if __name__ == "__main__":
 
     results = compare_across_decades(TERM_A, TERM_B, START_YEAR, END_YEAR)
 
-    # Print summary table
     print("\n%-10s  %-12s  %s" % ("Decade", "Similarity", "Visual"))
     print("-" * 45)
     for row in results:
@@ -545,25 +468,19 @@ if __name__ == "__main__":
         else:
             print("%-10s  %-12s  %s" % (row["decade"], "n/a", row.get("note", "")))
 
-    # Save for React to use as a static fixture while API is being built
     save_comparison(TERM_A, TERM_B, results, "results.json")
 
-    # Weighted average across the entire range
     weighted_avg = calculate_weighted_average(TERM_A, TERM_B, START_YEAR, END_YEAR, results)
     print("\nWeighted Average Similarity: %s" % (
         "%.4f" % weighted_avg if weighted_avg is not None else "n/a"
     ))
 
-    # Show the calculation breakdown
     print("\n--- Calculation Breakdown ---")
     pairs = []
     for row in results:
         if row["similarity"] is None:
             continue
-        path = DECADE_MODEL_PATHS.get(row["decade"])
-        if path is None:
-            continue
-        wv = load_model(path)
+        wv = load_model(row["decade"])
         if wv is None:
             continue
         try:
