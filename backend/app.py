@@ -21,7 +21,7 @@ def processQuery():
     results = calculate_weighted_average(data['query_word'], data['start_year'], data['end_year'], models)
 
     # Check clean_results parameter to correct and merge words
-    if (data['clean_results'] == True):
+    if data.get('clean_results') == True:
         results = clean_results(results)
 
     # Sort and trim to top 100
