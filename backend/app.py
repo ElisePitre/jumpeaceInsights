@@ -34,6 +34,26 @@ def processQuery():
         "results": top_results
     })
 
+@app.route("/decade/compare", methods=["POST"]) 
+def decadeCompare():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Missing data"}), 400
+
+    missing = [f for f in ["query_word", "destination_word", "start_year", "end_year"] if f not in data]
+    if missing:
+        return jsonify({"error": "Missing fields: %s" % missing}), 400
+
+    model   = decadeSelectModel(data["start_year"], data["end_year"])
+    results = decadeQuery(model, data["query_word"], data["destination_word"])
+
+    return jsonify({
+        "query_word":       data["query_word"],
+        "destination_word": data["destination_word"],
+        "results":          results
+    })
+
+
 @app.route("/searchCount", methods=["GET"])
 def searchCount():
     # Query DB for search counts
