@@ -6,6 +6,7 @@ import psycopg2
 from flask import Flask, request, jsonify
 import time
 from api.modelAPI import selectModels, calculate_weighted_average, merge_corrected_words
+from api.decadeAPI import selectModel as decadeSelectModel, query as decadeQuery  
 
 app = Flask(__name__)
 
