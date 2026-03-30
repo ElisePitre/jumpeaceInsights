@@ -1,9 +1,13 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from api.modelAPI import selectModels, calculate_weighted_average
 from api.decadeAPI import selectModel as decadeSelectModel, query as decadeQuery
 from api.cleanResultsAPI import clean_results
 
 app = Flask(__name__)
+
+# Configure CORS to allow both localhost and 127.0.0.1
+CORS(app, resources={r"/*": {"origins": ["http://localhost:5000", "http://127.0.0.1:5000", "http://localhost:3000", "http://127.0.0.1:3000"]}}, supports_credentials=True)
 
 @app.route("/query", methods=["POST"])
 def processQuery():

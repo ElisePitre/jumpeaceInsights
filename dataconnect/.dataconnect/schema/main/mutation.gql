@@ -1,0 +1,114 @@
+extend type Mutation {
+  """
+  ✨ Insert a single `Search` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  search_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: Search_Data!
+  ): Search_KeyOutput! @fdc_generated(from: "Search", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert `Search` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  search_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [Search_Data!]!
+  ): [Search_KeyOutput!]! @fdc_generated(from: "Search", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert or update a single `Search` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Search`.
+  """
+  search_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: Search_Data!
+  ): Search_KeyOutput! @fdc_generated(from: "Search", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update `Search` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Search`.
+  """
+  search_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [Search_Data!]!
+  ): [Search_KeyOutput!]! @fdc_generated(from: "Search", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Update a single `Search` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Search` or `null` if not found.
+  """
+  search_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Search_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Search_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: Search_Data!
+  ): Search_KeyOutput @fdc_generated(from: "Search", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update `Search` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  search_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: Search_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: Search_Data!
+  ): Int! @fdc_generated(from: "Search", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Delete a single `Search` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  search_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Search_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Search_FirstRow
+  ): Search_KeyOutput @fdc_generated(from: "Search", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete `Search` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  search_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: Search_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "Search", purpose: DELETE_MULTIPLE)
+}

@@ -4,7 +4,7 @@ import NavBar from './NavBar';
 import { Bar, Line } from 'react-chartjs-2';
 import WordCloud from "react-wordcloud";
 import * as htmlToImage from "html-to-image";
-import { auth } from '../firebase/firebase';
+import { auth, getPastSearches, getPopularSearches, addSearchToDatabase } from '../firebase/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 export const chartOptions = {
   responsive: true,
@@ -353,7 +353,9 @@ export default class Search extends Component {
       return;
     }
 
-    e.preventDefault();
+    if (e && typeof e.preventDefault === 'function') {
+      e.preventDefault();
+    }
     this.setState({ error: '', loading: true });
 
     try {
@@ -375,7 +377,23 @@ export default class Search extends Component {
         this.setState({
           search_results: data.results,
           decade_comparison_results: data.decade_comparison_results || data.decadeComparisonResults || {}
-        })
+        });
+        
+        // Log search to Firebase database for authenticated users
+        const user = auth.currentUser;
+        if (user && !user.isAnonymous) {
+          try {
+            await addSearchToDatabase(
+              user.uid,
+              this.state.search_term,
+              Number(this.state.start_date),
+              Number(this.state.end_date)
+            );
+          } catch (dbErr) {
+            console.error('Error logging search to database:', dbErr);
+            // Don't show error to user - search was successful
+          }
+        }
       } else {
 
         this.setState({
@@ -408,25 +426,26 @@ export default class Search extends Component {
     }
 
     try {
-      const response = await fetch('http://localhost:3000' + this.searchesMap[type].apiCall, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        this.setState({ [type + "_searches"]: data.searches })
-      } else {
-
-        this.setState({
-          error: data.message || 'Failed to get popular searches.',
-          loading: false
-        });
+      let results = [];
+      
+      if (type === 'popular') {
+        // Get popular searches from Firebase
+        const popularData = await getPopularSearches();
+        results = popularData.map(item => item.word);
+      } else if (type === 'past') {
+        // Get past searches for current user from Firebase
+        const user = auth.currentUser;
+        if (user && !user.isAnonymous) {
+          const pastData = await getPastSearches(user.uid);
+          results = pastData.map(item => item.word);
+        }
       }
+      
+      this.setState({ [type + "_searches"]: results });
     } catch (err) {
+      console.error(`Error fetching ${type} searches:`, err);
       this.setState({
-        error: 'Network error. Please try again later.',
+        error: `Failed to get ${type} searches. Please try again.`,
         loading: false
       });
     }

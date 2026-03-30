@@ -1,0 +1,341 @@
+"""
+✨ `Search_KeyOutput` returns the primary key fields of table type `Search`.
+
+It has the same format as `Search_Key`, but is only used as mutation return value.
+"""
+scalar Search_KeyOutput
+"""
+✨ Generated data input type for table 'Search'. It includes all necessary fields for creating or upserting rows into table.
+"""
+input Search_Data {
+  """
+  ✨ Generated from Field `Search`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `Search`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+  """
+  ✨ Generated from Field `Search`.`createdAt` of type `Timestamp!`
+  """
+  createdAt: Timestamp
+  """
+  ✨ `_expr` server value variant of `createdAt` (✨ Generated from Field `Search`.`createdAt` of type `Timestamp!`)
+  """
+  createdAt_expr: Timestamp_Expr
+  """
+  ✨ `_time` server value variant of `createdAt` (✨ Generated from Field `Search`.`createdAt` of type `Timestamp!`)
+  """
+  createdAt_time: Timestamp_Relative
+  """
+  ✨ `_update` server value variant of `createdAt` (✨ Generated from Field `Search`.`createdAt` of type `Timestamp!`)
+  """
+  createdAt_update: [Timestamp_Update!]
+  """
+  ✨ Generated from Field `Search`.`endYear` of type `Int!`
+  """
+  endYear: Int
+  """
+  ✨ `_expr` server value variant of `endYear` (✨ Generated from Field `Search`.`endYear` of type `Int!`)
+  """
+  endYear_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `endYear` (✨ Generated from Field `Search`.`endYear` of type `Int!`)
+  """
+  endYear_update: [Int_Update!]
+  """
+  ✨ Generated from Field `Search`.`startYear` of type `Int!`
+  """
+  startYear: Int
+  """
+  ✨ `_expr` server value variant of `startYear` (✨ Generated from Field `Search`.`startYear` of type `Int!`)
+  """
+  startYear_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `startYear` (✨ Generated from Field `Search`.`startYear` of type `Int!`)
+  """
+  startYear_update: [Int_Update!]
+  """
+  ✨ Generated from Field `Search`.`userId` of type `String!`
+  """
+  userId: String
+  """
+  ✨ `_expr` server value variant of `userId` (✨ Generated from Field `Search`.`userId` of type `String!`)
+  """
+  userId_expr: String_Expr
+  """
+  ✨ Generated from Field `Search`.`word` of type `String!`
+  """
+  word: String
+  """
+  ✨ `_expr` server value variant of `word` (✨ Generated from Field `Search`.`word` of type `String!`)
+  """
+  word_expr: String_Expr
+}
+"""
+✨ Generated filter input type for table 'Search'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input Search_Filter {
+  """
+  Apply multiple filter conditions using `AND` logic.
+  """
+  _and: [Search_Filter!]
+  """
+  Negate the result of the provided filter condition.
+  """
+  _not: Search_Filter
+  """
+  Apply multiple filter conditions using `OR` logic.
+  """
+  _or: [Search_Filter!]
+  """
+  ✨ Generated from Field `Search`.`id` of type `UUID!`
+  """
+  id: UUID_Filter
+  """
+  ✨ Generated from Field `Search`.`createdAt` of type `Timestamp!`
+  """
+  createdAt: Timestamp_Filter
+  """
+  ✨ Generated from Field `Search`.`endYear` of type `Int!`
+  """
+  endYear: Int_Filter
+  """
+  ✨ Generated from Field `Search`.`startYear` of type `Int!`
+  """
+  startYear: Int_Filter
+  """
+  ✨ Generated from Field `Search`.`userId` of type `String!`
+  """
+  userId: String_Filter
+  """
+  ✨ Generated from Field `Search`.`word` of type `String!`
+  """
+  word: String_Filter
+}
+"""
+✨ Generated first-row input type for table 'Search'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
+"""
+input Search_FirstRow {
+  """
+  Order the result by the specified fields.
+  """
+  orderBy: [Search_Order!]
+  """
+  Filters rows based on the specified conditions.
+  """
+  where: Search_Filter
+}
+"""
+✨ Generated having input type for table 'Search'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input Search_Having {
+  """
+  Apply multiple Having conditions using `AND` logic.
+  """
+  _and: [Search_Having!]
+  """
+  Whether to apply DISTINCT to the aggregate function.
+  """
+  _distinct: Boolean
+  """
+  Negate the result of the provided Having condition.
+  """
+  _not: Search_Having
+  """
+  Apply multiple Having conditions using `OR` logic.
+  """
+  _or: [Search_Having!]
+  """
+  ✨ Generated from Field `Search`.`_count` of type `Int!`
+  """
+  _count: Int_Filter
+  """
+  ✨ Generated from Field `Search`.`createdAt_count` of type `Int!`
+  """
+  createdAt_count: Int_Filter
+  """
+  ✨ Generated from Field `Search`.`endYear_count` of type `Int!`
+  """
+  endYear_count: Int_Filter
+  """
+  ✨ Generated from Field `Search`.`id_count` of type `Int!`
+  """
+  id_count: Int_Filter
+  """
+  ✨ Generated from Field `Search`.`startYear_count` of type `Int!`
+  """
+  startYear_count: Int_Filter
+  """
+  ✨ Generated from Field `Search`.`userId_count` of type `Int!`
+  """
+  userId_count: Int_Filter
+  """
+  ✨ Generated from Field `Search`.`word_count` of type `Int!`
+  """
+  word_count: Int_Filter
+  """
+  ✨ Generated from Field `Search`.`endYear_sum` of type `Int`
+  """
+  endYear_sum: Int_Filter
+  """
+  ✨ Generated from Field `Search`.`startYear_sum` of type `Int`
+  """
+  startYear_sum: Int_Filter
+  """
+  ✨ Generated from Field `Search`.`endYear_avg` of type `Float`
+  """
+  endYear_avg: Float_Filter
+  """
+  ✨ Generated from Field `Search`.`startYear_avg` of type `Float`
+  """
+  startYear_avg: Float_Filter
+  """
+  ✨ Generated from Field `Search`.`createdAt_min` of type `Timestamp`
+  """
+  createdAt_min: Timestamp_Filter
+  """
+  ✨ Generated from Field `Search`.`endYear_min` of type `Int`
+  """
+  endYear_min: Int_Filter
+  """
+  ✨ Generated from Field `Search`.`startYear_min` of type `Int`
+  """
+  startYear_min: Int_Filter
+  """
+  ✨ Generated from Field `Search`.`createdAt_max` of type `Timestamp`
+  """
+  createdAt_max: Timestamp_Filter
+  """
+  ✨ Generated from Field `Search`.`endYear_max` of type `Int`
+  """
+  endYear_max: Int_Filter
+  """
+  ✨ Generated from Field `Search`.`startYear_max` of type `Int`
+  """
+  startYear_max: Int_Filter
+}
+"""
+✨ Generated key input type for table 'Search'. It represents the primary key fields used to uniquely identify a row in the table.
+"""
+input Search_Key {
+  """
+  ✨ Generated from Field `Search`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `Search`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+}
+"""
+✨ Generated list filter input type for table 'Search'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
+"""
+input Search_ListFilter {
+  """
+  The desired number of objects that match the condition (defaults to at least one).
+  """
+  count: Int_Filter = {gt:0}
+  """
+  Condition of the related objects to filter for.
+  """
+  exist: Search_Filter
+}
+"""
+✨ Generated order input type for table 'Search'. This input defines the sorting order of rows in query results based on one or more fields.
+"""
+input Search_Order {
+  """
+  ✨ Generated from Field `Search`.`id` of type `UUID!`
+  """
+  id: OrderDirection
+  """
+  ✨ Generated from Field `Search`.`createdAt` of type `Timestamp!`
+  """
+  createdAt: OrderDirection
+  """
+  ✨ Generated from Field `Search`.`endYear` of type `Int!`
+  """
+  endYear: OrderDirection
+  """
+  ✨ Generated from Field `Search`.`startYear` of type `Int!`
+  """
+  startYear: OrderDirection
+  """
+  ✨ Generated from Field `Search`.`userId` of type `String!`
+  """
+  userId: OrderDirection
+  """
+  ✨ Generated from Field `Search`.`word` of type `String!`
+  """
+  word: OrderDirection
+  """
+  ✨ Generated from Field `Search`.`_count` of type `Int!`
+  """
+  _count: OrderDirection
+  """
+  ✨ Generated from Field `Search`.`createdAt_count` of type `Int!`
+  """
+  createdAt_count: OrderDirection
+  """
+  ✨ Generated from Field `Search`.`endYear_count` of type `Int!`
+  """
+  endYear_count: OrderDirection
+  """
+  ✨ Generated from Field `Search`.`id_count` of type `Int!`
+  """
+  id_count: OrderDirection
+  """
+  ✨ Generated from Field `Search`.`startYear_count` of type `Int!`
+  """
+  startYear_count: OrderDirection
+  """
+  ✨ Generated from Field `Search`.`userId_count` of type `Int!`
+  """
+  userId_count: OrderDirection
+  """
+  ✨ Generated from Field `Search`.`word_count` of type `Int!`
+  """
+  word_count: OrderDirection
+  """
+  ✨ Generated from Field `Search`.`endYear_sum` of type `Int`
+  """
+  endYear_sum: OrderDirection
+  """
+  ✨ Generated from Field `Search`.`startYear_sum` of type `Int`
+  """
+  startYear_sum: OrderDirection
+  """
+  ✨ Generated from Field `Search`.`endYear_avg` of type `Float`
+  """
+  endYear_avg: OrderDirection
+  """
+  ✨ Generated from Field `Search`.`startYear_avg` of type `Float`
+  """
+  startYear_avg: OrderDirection
+  """
+  ✨ Generated from Field `Search`.`createdAt_min` of type `Timestamp`
+  """
+  createdAt_min: OrderDirection
+  """
+  ✨ Generated from Field `Search`.`endYear_min` of type `Int`
+  """
+  endYear_min: OrderDirection
+  """
+  ✨ Generated from Field `Search`.`startYear_min` of type `Int`
+  """
+  startYear_min: OrderDirection
+  """
+  ✨ Generated from Field `Search`.`createdAt_max` of type `Timestamp`
+  """
+  createdAt_max: OrderDirection
+  """
+  ✨ Generated from Field `Search`.`endYear_max` of type `Int`
+  """
+  endYear_max: OrderDirection
+  """
+  ✨ Generated from Field `Search`.`startYear_max` of type `Int`
+  """
+  startYear_max: OrderDirection
+}

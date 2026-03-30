@@ -1,0 +1,128 @@
+extend type Search {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "Search", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `Search` table.
+  """
+  _count: Int! @fdc_generated(from: "Search.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Search` table where the `createdAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  createdAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Search.createdAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Search` table where the `endYear` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  endYear_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Search.endYear", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Search` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Search.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Search` table where the `startYear` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  startYear_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Search.startYear", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Search` table where the `userId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  userId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Search.userId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Search` table where the `word` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  word_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Search.word", purpose: QUERY_COUNT)
+  """
+  ✨ Sum the `endYear` field in the `Search` table.
+  """
+  endYear_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "Search.endYear", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `startYear` field in the `Search` table.
+  """
+  startYear_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "Search.startYear", purpose: QUERY_SUM)
+  """
+  ✨ Average the `endYear` field in the `Search` table.
+  """
+  endYear_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "Search.endYear", purpose: QUERY_AVG)
+  """
+  ✨ Average the `startYear` field in the `Search` table.
+  """
+  startYear_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "Search.startYear", purpose: QUERY_AVG)
+  """
+  ✨ Minimum of the `createdAt` field in the `Search` table.
+  """
+  createdAt_min: Timestamp @fdc_generated(from: "Search.createdAt", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `endYear` field in the `Search` table.
+  """
+  endYear_min: Int @fdc_generated(from: "Search.endYear", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `startYear` field in the `Search` table.
+  """
+  startYear_min: Int @fdc_generated(from: "Search.startYear", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `createdAt` field in the `Search` table.
+  """
+  createdAt_max: Timestamp @fdc_generated(from: "Search.createdAt", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `endYear` field in the `Search` table.
+  """
+  endYear_max: Int @fdc_generated(from: "Search.endYear", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `startYear` field in the `Search` table.
+  """
+  startYear_max: Int @fdc_generated(from: "Search.startYear", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "Search.id", purpose: GLOBAL_ID)
+}

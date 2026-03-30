@@ -1,0 +1,13 @@
+specVersion: "v1"
+serviceId: "jumppeace-7c331-service"
+location: "northamerica-northeast2"
+schemas:
+  - source: "./schema"
+    datasource:
+      postgresql:
+        database: "jumppeace-7c331-database"
+        cloudSql:
+          instanceId: "jumppeace-7c331-instance"
+          # schemaValidation: "STRICT"     # STRICT mode makes Postgres schema match Data Connect exactly.
+          # schemaValidation: "COMPATIBLE" # COMPATIBLE mode makes Postgres schema compatible with Data Connect.
+connectorDirs: ["./example"]

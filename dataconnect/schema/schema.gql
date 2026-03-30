@@ -1,0 +1,7 @@
+type Search @table {
+  userId: String!
+  word: String!
+  startYear: Int!
+  endYear: Int!
+  createdAt: Timestamp!
+}

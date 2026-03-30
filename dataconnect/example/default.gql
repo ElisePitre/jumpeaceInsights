@@ -1,0 +1,39 @@
+mutation CreateSearch($userId: String!, $word: String!, $startYear: Int!, $endYear: Int!) @auth(expr: "true", insecureReason: "Public write enabled for search import and guest usage") {
+  search_insert(data: {userId: $userId, word: $word, startYear: $startYear, endYear: $endYear, createdAt_expr: "request.time"})
+}
+
+query GetMySearches @auth(level: USER) {
+  searches(where: {userId: {eq_expr: "auth.uid"}}) {
+    id
+    word
+    startYear
+    endYear
+    createdAt
+  }
+}
+
+query GetAllSearches @auth(expr: "true", insecureReason: "Public read for popular searches") {
+  searches {
+    id
+    userId
+    word
+    startYear
+    endYear
+    createdAt
+  }
+}
+
+query GetSpecificSearch($id: UUID!) @auth(expr: "true", insecureReason: "Public read by id") {
+  search(id: $id) {
+    id
+    userId
+    word
+    startYear
+    endYear
+    createdAt
+  }
+}
+
+mutation DeleteSearch($id: UUID!) @auth(expr: "true", insecureReason: "Public delete for test connector") {
+  search_delete(key: {id: $id})
+}
