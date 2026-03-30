@@ -691,6 +691,13 @@ export default class Search extends Component {
             </div>
           </form>
 
+          {this.state.loading && (
+            <div className="site-blurb" style={{ marginTop: '12px' }}>
+              <h3 className="site-blurb-header">Searching...</h3>
+              <p className="site-blurb-text">Fetching related terms and preparing visualizations.</p>
+            </div>
+          )}
+
           {/* Site blurb */}
           <div className="site-blurb">
             <h3 className="site-blurb-header">Explore semantic shifts across centuries</h3>
