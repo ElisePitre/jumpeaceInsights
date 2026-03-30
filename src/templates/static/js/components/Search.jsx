@@ -373,10 +373,10 @@ export default class Search extends Component {
       });
 
       const data = await response.json();
-
+      console.log('API response:', data);
       if (response.ok) {
         this.setState({
-          search_results: data.results,
+          search_results: this.mapApiResultsToVectors(data),
           decade_comparison_results: data.decade_comparison_results || data.decadeComparisonResults || {}
         });
         
