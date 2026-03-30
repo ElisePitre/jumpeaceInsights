@@ -8,7 +8,13 @@ from gensim.models import Word2Vec
 # This function should process the start and end times to select/merge models
 def selectModels(startDecade, endDecade):
     models = {}
-    for curDecade in range(startDecade, endDecade, 10):
+    EARLIEST_DECADE = 1770
+    LATEST_DECADE = 1960
+
+    startDecade = max(EARLIEST_DECADE, startDecade)
+    endDecade = min(LATEST_DECADE, endDecade)
+
+    for curDecade in range(startDecade, endDecade + 1, 10):
         try:
             model_path = hf_hub_download(
                 repo_id="puneetchdry/w2v_models_jumpeace",

@@ -303,17 +303,18 @@ export default class Search extends Component {
 
     let search = false;
     SEARCH_PARAMS.forEach((param, index) => {
-      console.log(params.get(param), index);
-      if (params.get(param) !== this.state[param] && params.get(param) !== '') {
-        this.setState({
-          [param]: params.get(param) ?? ''
-        }, () => {
-          if (this.state[param] !== '') {
-              search = true;
-          }
-        })
+      let value = params.get(param) ?? '';
+
+      // Cap the decades
+      if (param === 'start_date' && !value) value = DECADES[0];
+      if (param === 'end_date' && !value) value = DECADES[DECADES.length - 1];
+
+      if (value !== this.state[param]) {
+        this.setState({ [param]: value }, () => {
+          search = true;
+        });
       }
-    })
+    });
     if (search) {
       console.log('search');
       this.handleSubmit();
@@ -359,7 +360,7 @@ export default class Search extends Component {
     this.setState({ error: '', loading: true });
 
     try {
-      const response = await fetch('http://localhost:3000/query', {
+      const response = await fetch('/api/query', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -373,7 +374,7 @@ export default class Search extends Component {
 
       const data = await response.json();
 
-      if (response.ok && data.success) {
+      if (response.ok) {
         this.setState({
           search_results: data.results,
           decade_comparison_results: data.decade_comparison_results || data.decadeComparisonResults || {}
@@ -395,7 +396,6 @@ export default class Search extends Component {
           }
         }
       } else {
-
         this.setState({
           error: data.message || 'Search failed. Please try again.',
           loading: false
@@ -419,6 +419,17 @@ export default class Search extends Component {
       apiCall: "getPastSearches"
     },
   }
+
+  mapApiResultsToVectors = (apiResults) => {
+    return {
+      search: apiResults.query,
+      vectors: (apiResults.results || []).map(r => ({
+        word: r.word,
+        vector: r.weighted_similarity
+      }))
+    };
+  };
+
   getSearches = async (type) => {
     if (this.devMode) {
       this.setState({ [type + "_searches"]: this.devData[type + "_searches"].searches });
