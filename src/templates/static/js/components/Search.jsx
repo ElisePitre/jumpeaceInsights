@@ -8,10 +8,19 @@ import { auth, getPastSearches, getPopularSearches, addSearchToDatabase } from '
 import { onAuthStateChanged } from 'firebase/auth';
 export const chartOptions = {
   responsive: true,
+  maintainAspectRatio: false,
+  layout: {
+    padding: {
+      top: 16,
+      right: 12,
+      bottom: 24,
+      left: 12,
+    }
+  },
   legend: false,
   scales: {
     yAxes: [{
-      ticks: { min: 0.5 },
+      ticks: { min: 0.5, beginAtZero: false },
       scaleLabel: {
         display: true,
         labelString: 'Closeness to search term',
@@ -40,10 +49,19 @@ export const mapOptions = {
 };
 export const decadeComparisonOptions = {
   responsive: true,
+  maintainAspectRatio: false,
+  layout: {
+    padding: {
+      top: 16,
+      right: 12,
+      bottom: 24,
+      left: 12,
+    }
+  },
   legend: false,
   scales: {
     yAxes: [{
-      ticks: { min: 0, max: 1 },
+      ticks: { min: 0, max: 1, beginAtZero: true },
       scaleLabel: {
         display: true,
         labelString: 'Closeness of terms',
@@ -379,7 +397,7 @@ export default class Search extends Component {
           search_results: this.mapApiResultsToVectors(data),
           decade_comparison_results: data.decade_comparison_results || data.decadeComparisonResults || {}
         });
-        
+
         // Log search to Firebase database for authenticated users
         const user = auth.currentUser;
         if (user && !user.isAnonymous) {
@@ -438,7 +456,7 @@ export default class Search extends Component {
 
     try {
       let results = [];
-      
+
       if (type === 'popular') {
         // Get popular searches from Firebase
         const popularData = await getPopularSearches();
@@ -451,7 +469,7 @@ export default class Search extends Component {
           results = pastData.map(item => item.word);
         }
       }
-      
+
       this.setState({ [type + "_searches"]: results });
     } catch (err) {
       console.error(`Error fetching ${type} searches:`, err);
@@ -488,7 +506,7 @@ export default class Search extends Component {
     const hasVectorData = Array.isArray(this.state.search_results.vectors) && this.state.search_results.vectors.length > 0;
     const resultTitle = this.state.search_results.search || this.state.search_results.term_a || this.state.search_term;
     return (
-      <div className='result-card results-wide'>
+      <div className='result-card results-wide' style={{ margin: '0 auto', padding: '24px', maxWidth: '1100px' }}>
         <h4 className='searches-header'>Results: {resultTitle}</h4>
 
         {/* Top 5 Results */}
@@ -544,16 +562,16 @@ export default class Search extends Component {
           <div style={{ flex: 1, minWidth: 0, paddingLeft: '16px' }}>
             <h4 className='searches-header'>Visualizer</h4>
             {this.state.visualizer_mode === 'bar' && hasVectorData &&
-              <div style={{ height: 400 }}>
+              <div style={{ height: 480, minHeight: 380 }}>
                 <Bar ref={this.barChartRef} options={chartOptions} data={this.getBarData()} />
               </div>}
             {this.state.visualizer_mode === 'map' && hasVectorData &&
-              <div ref={this.wordCloudRef} style={{ height: 400 }}>
+              <div ref={this.wordCloudRef} style={{ height: 460, minHeight: 360 }}>
                 <WordCloud options={mapOptions.options} words={this.getMapData()} />
               </div>
             }
             {this.state.visualizer_mode === 'decade-comparison' && hasDestinationTerm && hasDecadeData &&
-              <div ref={this.decadeComparisonRef} style={{ height: 400 }}>
+              <div ref={this.decadeComparisonRef} style={{ height: 480, minHeight: 380 }}>
                 <Line options={decadeComparisonOptions} data={decadeData} />
               </div>
             }
