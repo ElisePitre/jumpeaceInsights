@@ -457,16 +457,20 @@ h1, h2, h3, h4, h5, h6, p, ul {
   cursor: not-allowed;
 }
 
-/* [FIX 4b] Date inputs: subtle background + icon space to distinguish from text */
-.form-group input[type="date"] {
+/* [FIX 4b] Decade select dropdowns: subtle background to distinguish from text inputs */
+.form-group select {
   background: rgba(237, 241, 247, 0.6);
   padding-left: var(--space-3);
-  color: var(--muted);
-  position: relative;
-}
-
-.form-group input[type="date"]:valid {
   color: var(--text);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230c1736' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 36px;
 }
 
 /* ============================================================
@@ -1595,8 +1599,8 @@ body {
   border-radius: 0 !important;
 }
 
-/* Date inputs boxy */
-.form-group input[type="date"] {
+/* Decade select dropdowns boxy */
+.form-group select {
   background: #fdf9f3 !important;
   border: 2px solid #000 !important;
   color: #000 !important;

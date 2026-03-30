@@ -59,6 +59,12 @@ export const decadeComparisonOptions = {
   }
 };
 
+const DECADES = [
+  "1770s", "1780s", "1790s", "1800s", "1810s", "1820s", "1830s",
+  "1840s", "1850s", "1860s", "1870s", "1880s", "1890s", "1900s",
+  "1910s", "1920s", "1930s", "1940s", "1950s", "1960s",
+];
+
 const dev_past_searches = require("../../../public/dummy_data/past-searches.json");
 const dev_popular_searches = require("../../../public/dummy_data/popular-searches.json");
 const dev_search_results = require("../../../public/dummy_data/search-results.json");
@@ -77,8 +83,8 @@ export default class Search extends Component {
     this.state = {
       search_term: '',
       destination_term: '',
-      start_date: new Date(),
-      end_date: new Date(),
+      start_date: DECADES[0],
+      end_date: DECADES[DECADES.length - 1],
       error: '',
       loading: false,
       popular_searches: [],
@@ -532,23 +538,29 @@ export default class Search extends Component {
             {/* Second row: start_date | end_date | destination_term */}
             <div className="form-row" style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
               <div className="form-group" style={{ flex: 1 }}>
-                <input
-                  type="date"
+                <select
                   id="start_date"
                   value={this.state.start_date}
                   onChange={(e) => this.setState({ start_date: e.target.value })}
                   disabled={this.state.loading}
-                />
+                >
+                  {DECADES.map((d) => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
               </div>
 
               <div className="form-group" style={{ flex: 1 }}>
-                <input
-                  type="date"
+                <select
                   id="end_date"
                   value={this.state.end_date}
                   onChange={(e) => this.setState({ end_date: e.target.value })}
                   disabled={this.state.loading}
-                />
+                >
+                  {DECADES.map((d) => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
               </div>
 
               <div className="form-group" style={{ flex: 2 }}>
