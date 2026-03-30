@@ -7,3 +7,4 @@ node_modules/
 __pycache__
 *.log
 src/templates/public/bundle.js
+src/templates/__pycache__/__init__.cpython-313.pyc
