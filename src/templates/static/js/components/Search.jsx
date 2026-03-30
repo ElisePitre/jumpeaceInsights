@@ -717,7 +717,8 @@ export default class Search extends Component {
           </form>
 
           {this.state.loading && (
-            <div className="site-blurb" style={{ marginTop: '12px' }}>
+            <div className="site-blurb loading-indicator" style={{ marginTop: '12px' }}>
+              <div className="loading-spinner" aria-hidden="true" />
               <h3 className="site-blurb-header">Searching...</h3>
               <p className="site-blurb-text">Fetching related terms and preparing visualizations.</p>
             </div>

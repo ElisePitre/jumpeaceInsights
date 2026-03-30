@@ -724,6 +724,31 @@ ul {
   color: var(--text);
 }
 
+.loading-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.loading-spinner {
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  border: 9px solid rgba(12, 23, 54, 0.16);
+  border-top-color: rgba(12, 23, 54, 0.95);
+  border-right-color: rgba(12, 23, 54, 0.8);
+  border-bottom-color: rgba(12, 23, 54, 0.55);
+  border-left-color: rgba(12, 23, 54, 0.28);
+  margin-bottom: 14px;
+  animation: spin-search-loader 0.9s linear infinite;
+}
+
+@keyframes spin-search-loader {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .searchChips {
   width: min(100%, var(--max-width));
   margin: 0 auto;
