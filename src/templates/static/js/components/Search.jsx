@@ -552,7 +552,16 @@ export default class Search extends Component {
                 <select
                   id="start_date"
                   value={this.state.start_date}
-                  onChange={(e) => this.setState({ start_date: e.target.value })}
+                  onChange={(e) => {
+                    const newStart = e.target.value;
+                    const startIdx = DECADES.indexOf(newStart);
+                    const endIdx = DECADES.indexOf(this.state.end_date);
+                    if (endIdx < startIdx) {
+                      this.setState({ start_date: newStart, end_date: newStart });
+                    } else {
+                      this.setState({ start_date: newStart });
+                    }
+                  }}
                   disabled={this.state.loading}
                 >
                   {DECADES.map((d) => (
@@ -568,7 +577,7 @@ export default class Search extends Component {
                   onChange={(e) => this.setState({ end_date: e.target.value })}
                   disabled={this.state.loading}
                 >
-                  {DECADES.map((d) => (
+                  {DECADES.filter((d) => DECADES.indexOf(d) >= DECADES.indexOf(this.state.start_date)).map((d) => (
                     <option key={d} value={d}>{d}</option>
                   ))}
                 </select>
