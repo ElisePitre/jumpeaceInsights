@@ -517,7 +517,9 @@ export default class Search extends Component {
           <ol className='searches-list'>
             {(this.state.search_results.vectors || []).slice(0, 5).map((result, index) => (
               <li key={index}>
-                <Link to={`/search?search_term=${encodeURIComponent(result.word)}`}>
+                <Link
+                  to={`/search?search_term=${encodeURIComponent(result.word)}&start_date=${encodeURIComponent(this.state.start_date)}&end_date=${encodeURIComponent(this.state.end_date)}`}
+                >
                   {result.word}
                 </Link>
               </li>
