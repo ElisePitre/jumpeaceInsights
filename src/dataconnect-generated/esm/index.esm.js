@@ -1,10 +1,11 @@
-import { queryRef, executeQuery, validateArgsWithOptions, mutationRef, executeMutation, validateArgs } from 'firebase/data-connect';
+import { queryRef, executeQuery, mutationRef, executeMutation, validateArgs } from 'firebase/data-connect';
 
 export const connectorConfig = {
   connector: 'default',
   service: 'jumppeace-7c331-service',
   location: 'northamerica-northeast2'
 };
+
 export const createSearchRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
@@ -13,8 +14,7 @@ export const createSearchRef = (dcOrVars, vars) => {
 createSearchRef.operationName = 'CreateSearch';
 
 export function createSearch(dcOrVars, vars) {
-  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
-  return executeMutation(createSearchRef(dcInstance, inputVars));
+  return executeMutation(createSearchRef(dcOrVars, vars));
 }
 
 export const getMySearchesRef = (dc) => {
@@ -24,10 +24,8 @@ export const getMySearchesRef = (dc) => {
 }
 getMySearchesRef.operationName = 'GetMySearches';
 
-export function getMySearches(dcOrOptions, options) {
-  
-  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
-  return executeQuery(getMySearchesRef(dcInstance, inputVars), inputOpts && inputOpts.fetchPolicy);
+export function getMySearches(dc) {
+  return executeQuery(getMySearchesRef(dc));
 }
 
 export const getAllSearchesRef = (dc) => {
@@ -37,10 +35,8 @@ export const getAllSearchesRef = (dc) => {
 }
 getAllSearchesRef.operationName = 'GetAllSearches';
 
-export function getAllSearches(dcOrOptions, options) {
-  
-  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
-  return executeQuery(getAllSearchesRef(dcInstance, inputVars), inputOpts && inputOpts.fetchPolicy);
+export function getAllSearches(dc) {
+  return executeQuery(getAllSearchesRef(dc));
 }
 
 export const getSpecificSearchRef = (dcOrVars, vars) => {
@@ -50,10 +46,8 @@ export const getSpecificSearchRef = (dcOrVars, vars) => {
 }
 getSpecificSearchRef.operationName = 'GetSpecificSearch';
 
-export function getSpecificSearch(dcOrVars, varsOrOptions, options) {
-  
-  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
-  return executeQuery(getSpecificSearchRef(dcInstance, inputVars), inputOpts && inputOpts.fetchPolicy);
+export function getSpecificSearch(dcOrVars, vars) {
+  return executeQuery(getSpecificSearchRef(dcOrVars, vars));
 }
 
 export const deleteSearchRef = (dcOrVars, vars) => {
@@ -64,7 +58,6 @@ export const deleteSearchRef = (dcOrVars, vars) => {
 deleteSearchRef.operationName = 'DeleteSearch';
 
 export function deleteSearch(dcOrVars, vars) {
-  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
-  return executeMutation(deleteSearchRef(dcInstance, inputVars));
+  return executeMutation(deleteSearchRef(dcOrVars, vars));
 }
 

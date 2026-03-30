@@ -1,4 +1,4 @@
-import { ConnectorConfig, DataConnect, QueryRef, QueryPromise, ExecuteQueryOptions, MutationRef, MutationPromise } from 'firebase/data-connect';
+import { ConnectorConfig, DataConnect, QueryRef, QueryPromise, MutationRef, MutationPromise } from 'firebase/data-connect';
 
 export const connectorConfig: ConnectorConfig;
 
@@ -91,8 +91,8 @@ interface GetMySearchesRef {
 }
 export const getMySearchesRef: GetMySearchesRef;
 
-export function getMySearches(options?: ExecuteQueryOptions): QueryPromise<GetMySearchesData, undefined>;
-export function getMySearches(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<GetMySearchesData, undefined>;
+export function getMySearches(): QueryPromise<GetMySearchesData, undefined>;
+export function getMySearches(dc: DataConnect): QueryPromise<GetMySearchesData, undefined>;
 
 interface GetAllSearchesRef {
   /* Allow users to create refs without passing in DataConnect */
@@ -103,8 +103,8 @@ interface GetAllSearchesRef {
 }
 export const getAllSearchesRef: GetAllSearchesRef;
 
-export function getAllSearches(options?: ExecuteQueryOptions): QueryPromise<GetAllSearchesData, undefined>;
-export function getAllSearches(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<GetAllSearchesData, undefined>;
+export function getAllSearches(): QueryPromise<GetAllSearchesData, undefined>;
+export function getAllSearches(dc: DataConnect): QueryPromise<GetAllSearchesData, undefined>;
 
 interface GetSpecificSearchRef {
   /* Allow users to create refs without passing in DataConnect */
@@ -115,8 +115,8 @@ interface GetSpecificSearchRef {
 }
 export const getSpecificSearchRef: GetSpecificSearchRef;
 
-export function getSpecificSearch(vars: GetSpecificSearchVariables, options?: ExecuteQueryOptions): QueryPromise<GetSpecificSearchData, GetSpecificSearchVariables>;
-export function getSpecificSearch(dc: DataConnect, vars: GetSpecificSearchVariables, options?: ExecuteQueryOptions): QueryPromise<GetSpecificSearchData, GetSpecificSearchVariables>;
+export function getSpecificSearch(vars: GetSpecificSearchVariables): QueryPromise<GetSpecificSearchData, GetSpecificSearchVariables>;
+export function getSpecificSearch(dc: DataConnect, vars: GetSpecificSearchVariables): QueryPromise<GetSpecificSearchData, GetSpecificSearchVariables>;
 
 interface DeleteSearchRef {
   /* Allow users to create refs without passing in DataConnect */

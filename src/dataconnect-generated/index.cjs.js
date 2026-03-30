@@ -1,4 +1,4 @@
-const { queryRef, executeQuery, validateArgsWithOptions, mutationRef, executeMutation, validateArgs } = require('firebase/data-connect');
+const { queryRef, executeQuery, mutationRef, executeMutation, validateArgs } = require('firebase/data-connect');
 
 const connectorConfig = {
   connector: 'default',
@@ -16,10 +16,8 @@ createSearchRef.operationName = 'CreateSearch';
 exports.createSearchRef = createSearchRef;
 
 exports.createSearch = function createSearch(dcOrVars, vars) {
-  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
-  return executeMutation(createSearchRef(dcInstance, inputVars));
-}
-;
+  return executeMutation(createSearchRef(dcOrVars, vars));
+};
 
 const getMySearchesRef = (dc) => {
   const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
@@ -29,12 +27,9 @@ const getMySearchesRef = (dc) => {
 getMySearchesRef.operationName = 'GetMySearches';
 exports.getMySearchesRef = getMySearchesRef;
 
-exports.getMySearches = function getMySearches(dcOrOptions, options) {
-  
-  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
-  return executeQuery(getMySearchesRef(dcInstance, inputVars), inputOpts && inputOpts.fetchPolicy);
-}
-;
+exports.getMySearches = function getMySearches(dc) {
+  return executeQuery(getMySearchesRef(dc));
+};
 
 const getAllSearchesRef = (dc) => {
   const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
@@ -44,12 +39,9 @@ const getAllSearchesRef = (dc) => {
 getAllSearchesRef.operationName = 'GetAllSearches';
 exports.getAllSearchesRef = getAllSearchesRef;
 
-exports.getAllSearches = function getAllSearches(dcOrOptions, options) {
-  
-  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrOptions, options, undefined,false, false);
-  return executeQuery(getAllSearchesRef(dcInstance, inputVars), inputOpts && inputOpts.fetchPolicy);
-}
-;
+exports.getAllSearches = function getAllSearches(dc) {
+  return executeQuery(getAllSearchesRef(dc));
+};
 
 const getSpecificSearchRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
@@ -59,12 +51,9 @@ const getSpecificSearchRef = (dcOrVars, vars) => {
 getSpecificSearchRef.operationName = 'GetSpecificSearch';
 exports.getSpecificSearchRef = getSpecificSearchRef;
 
-exports.getSpecificSearch = function getSpecificSearch(dcOrVars, varsOrOptions, options) {
-  
-  const { dc: dcInstance, vars: inputVars, options: inputOpts } = validateArgsWithOptions(connectorConfig, dcOrVars, varsOrOptions, options, true, true);
-  return executeQuery(getSpecificSearchRef(dcInstance, inputVars), inputOpts && inputOpts.fetchPolicy);
-}
-;
+exports.getSpecificSearch = function getSpecificSearch(dcOrVars, vars) {
+  return executeQuery(getSpecificSearchRef(dcOrVars, vars));
+};
 
 const deleteSearchRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
@@ -75,7 +64,5 @@ deleteSearchRef.operationName = 'DeleteSearch';
 exports.deleteSearchRef = deleteSearchRef;
 
 exports.deleteSearch = function deleteSearch(dcOrVars, vars) {
-  const { dc: dcInstance, vars: inputVars } = validateArgs(connectorConfig, dcOrVars, vars, true);
-  return executeMutation(deleteSearchRef(dcInstance, inputVars));
-}
-;
+  return executeMutation(deleteSearchRef(dcOrVars, vars));
+};

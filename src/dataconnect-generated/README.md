@@ -63,7 +63,7 @@ Below are examples of how to use the `default` connector's generated functions t
 ## GetMySearches
 You can execute the `GetMySearches` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect-generated/index.d.ts](./index.d.ts):
 ```typescript
-getMySearches(options?: ExecuteQueryOptions): QueryPromise<GetMySearchesData, undefined>;
+getMySearches(): QueryPromise<GetMySearchesData, undefined>;
 
 interface GetMySearchesRef {
   ...
@@ -74,7 +74,7 @@ export const getMySearchesRef: GetMySearchesRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
 ```typescript
-getMySearches(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<GetMySearchesData, undefined>;
+getMySearches(dc: DataConnect): QueryPromise<GetMySearchesData, undefined>;
 
 interface GetMySearchesRef {
   ...
@@ -160,7 +160,7 @@ executeQuery(ref).then((response) => {
 ## GetAllSearches
 You can execute the `GetAllSearches` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect-generated/index.d.ts](./index.d.ts):
 ```typescript
-getAllSearches(options?: ExecuteQueryOptions): QueryPromise<GetAllSearchesData, undefined>;
+getAllSearches(): QueryPromise<GetAllSearchesData, undefined>;
 
 interface GetAllSearchesRef {
   ...
@@ -171,7 +171,7 @@ export const getAllSearchesRef: GetAllSearchesRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
 ```typescript
-getAllSearches(dc: DataConnect, options?: ExecuteQueryOptions): QueryPromise<GetAllSearchesData, undefined>;
+getAllSearches(dc: DataConnect): QueryPromise<GetAllSearchesData, undefined>;
 
 interface GetAllSearchesRef {
   ...
@@ -258,7 +258,7 @@ executeQuery(ref).then((response) => {
 ## GetSpecificSearch
 You can execute the `GetSpecificSearch` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect-generated/index.d.ts](./index.d.ts):
 ```typescript
-getSpecificSearch(vars: GetSpecificSearchVariables, options?: ExecuteQueryOptions): QueryPromise<GetSpecificSearchData, GetSpecificSearchVariables>;
+getSpecificSearch(vars: GetSpecificSearchVariables): QueryPromise<GetSpecificSearchData, GetSpecificSearchVariables>;
 
 interface GetSpecificSearchRef {
   ...
@@ -269,7 +269,7 @@ export const getSpecificSearchRef: GetSpecificSearchRef;
 ```
 You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
 ```typescript
-getSpecificSearch(dc: DataConnect, vars: GetSpecificSearchVariables, options?: ExecuteQueryOptions): QueryPromise<GetSpecificSearchData, GetSpecificSearchVariables>;
+getSpecificSearch(dc: DataConnect, vars: GetSpecificSearchVariables): QueryPromise<GetSpecificSearchData, GetSpecificSearchVariables>;
 
 interface GetSpecificSearchRef {
   ...
