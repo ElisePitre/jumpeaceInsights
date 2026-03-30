@@ -1,298 +1,674 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
 
-html {
-	box-sizing: border-box;
-	-ms-text-size-adjust: 100%;
-	-webkit-text-size-adjust: 100%;
+/* ============================================================
+   JUMPEACE INSIGHTS â€” FIXED STYLESHEET
+   ============================================================
+   Fixes applied (CSS-only, no HTML changes):
+   1. Accessibility: contrast, focus-visible, keyboard nav
+   2. Visual hierarchy: button variants, danger distinction
+   3. Layout & spacing: normalized scale, centered elements
+   4. Search page: aligned button, date input styling
+   5. Responsive: mobile nav, auth cards, scroll-margin
+   6. Polish & transitions: animations, softer hovers
+   7. Typography: reading width, text-wrap balance
+   ============================================================ */
+
+:root {
+  --bg: #edf1f7;
+  --bg-soft: #f7f9fc;
+  --surface: rgba(255, 255, 255, 0.88);
+  --surface-strong: #ffffff;
+  --text: #0c1736;
+
+  /* [FIX 1a] Accessibility: darkened --muted from #5f6c87 to #3d4a63 for WCAG AA on light bg */
+  --muted: #3d4a63;
+
+  --primary: #0c1736;
+  --primary-2: #1c2c57;
+
+  /* [FIX 1b] Accessibility: darkened --accent from #b86a47 to #8f4e2e for WCAG AA small text */
+  --accent: #8f4e2e;
+  --accent-soft: #f4e1d7;
+
+  --danger: #a53636;
+  --danger-strong: #8a1f1f;
+  --line: #d9dfeb;
+  --line-strong: #aeb9cf;
+
+  /* [FIX 6d] Cleaned up: removed unused shadow vars, consolidated */
+  --shadow-sm: 0 8px 24px rgba(12, 23, 54, 0.08);
+  --shadow-md: 0 14px 36px rgba(12, 23, 54, 0.12);
+  --shadow-focus: 0 0 0 3px rgba(12, 23, 54, 0.2);
+
+  --radius: 18px;
+  --radius-sm: 12px;
+  --max-width: 1240px;
+
+  /* [FIX 3d] Normalized spacing scale (4/8/12/16/24/32/48/64) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
 }
-*, *:before, *:after {
-	box-sizing: inherit;
+
+* {
+  box-sizing: border-box;
 }
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  width: 100%;
+}
+
+/* [FIX 5c] scroll-margin-top for sticky navbar anchor links */
+[id] {
+  scroll-margin-top: 180px;
+}
+
 body {
-	margin: 0;
-	background-color: #F7F7F7;
-	font-family: "Times New Roman", Times, serif !important;
-	color: #0C1736;
-	
-}
-h1, h2, h3, h4, h5, h6, ul {
-	font-family: 'Montserrat', sans-serif;
-	margin: 0;
-	padding: 0;
-	color: #0C1736;
+  font-family: 'Montserrat', sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(143, 78, 46, 0.08), transparent 24%),
+    radial-gradient(circle at top right, rgba(12, 23, 54, 0.08), transparent 28%),
+    linear-gradient(180deg, #f9fbfe 0%, #edf1f7 55%, #e8edf5 100%);
+  overflow-x: hidden;
 }
 
-
-/* Home/abt page styling */
-.page-card {
-	max-width: 1000px;
-	background-color: white;
-	width: 100%;
-	padding: 50px 60px;
-	border: 2px solid #0C1736;
-	box-shadow: 0 4px 12px rgba(12, 23, 54, 0.15);
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.16;
+  background-image:
+    linear-gradient(rgba(12, 23, 54, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(12, 23, 54, 0.025) 1px, transparent 1px);
+  background-size: 26px 26px;
+  z-index: 0;
 }
 
-.large-page-card {
-	background-color: white;
-	width: 100%;
-	padding: 50px 60px;
-	border: 2px solid #0C1736;
-	box-shadow: 0 4px 12px rgba(12, 23, 54, 0.15);
+a {
+  color: inherit;
+  text-decoration: none;
 }
 
-.result-card {
-	max-width: 800px;
-	background-color: white;
-	width: 100%;
-	padding: 10px 20px;
-	margin-bottom: 20px;
-	border: 2px solid #0C1736;
-	box-shadow: 0 4px 12px rgba(12, 23, 54, 0.15);
+h1, h2, h3, h4, h5, h6, p, ul {
+  margin: 0;
+  padding: 0;
+}
+
+/* ============================================================
+   [FIX 1c] GLOBAL FOCUS-VISIBLE STYLES
+   Removed outline:none from inputs. Added :focus-visible ring
+   to all interactive elements for keyboard accessibility.
+   ============================================================ */
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Softer focus for inputs (they get a box-shadow instead) */
+.form-group input:focus-visible,
+.form-group textarea:focus-visible,
+.form-group select:focus-visible,
+.account-input:focus-visible {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow:
+    var(--shadow-focus),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+/* ============================================================
+   GLOBAL FULL SCREEN LAYOUT
+   ============================================================ */
+
+.page-container,
+.auth-container {
+  width: 100%;
+  min-height: 100vh;
+  padding: 0;
+  display: block;
+  position: relative;
+  z-index: 1;
+}
+
+.page-card,
+.large-page-card,
+.account-page-card {
+  width: 100%;
+  min-height: 100vh;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 0;
+  overflow: visible;
+}
+
+.result-card,
+.auth-card {
+  background: var(--surface);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius);
+}
+
+.page-content,
+.search-page-main,
+.account-content {
+  width: min(100%, var(--max-width));
+  margin: 0 auto;
+  padding-left: var(--space-6);
+  padding-right: var(--space-6);
 }
 
 .page-content {
-	margin-bottom: 40px;
-	line-height: 1.7;
-	font-size: 18px;
+  padding-top: var(--space-8);
+  padding-bottom: 70px;
+  line-height: 1.8;
+  font-size: 18px;
 }
 
 .page-title {
-	font-family: 'Montserrat', sans-serif;
-	font-size: 28px;
-	font-weight: 700;
-	color: #0C1736;
-	margin-bottom: 30px;
-	margin-top: 40px;
-	text-align: center;
-	letter-spacing: -0.5px;
+  font-size: clamp(2.3rem, 5vw, 4.4rem);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.05em;
+  text-align: center;
+  color: var(--primary);
+  margin: 58px 0 28px;
+  font-style: italic;
+  line-height: 0.95;
+  /* [FIX 7b] text-wrap: balance for headings */
+  text-wrap: balance;
 }
 
-.page-container {
-	min-height: 100vh;
-	width: 100%;
-	display: flex;
-	justify-content: center;
-	align-items: flex-start;  
-	padding: 40px 20px;
-	background-color: #F7F7F7;
-  }
-
 .page-subtitle {
-	font-family: 'Montserrat', sans-serif;
-	font-size: 23px;
-	font-weight: 700;
-	color: #0C1736;
-	margin-bottom: 5px;
-	text-align: left;
-	letter-spacing: -0.5px;
+  font-size: clamp(1.35rem, 2vw, 1.9rem);
+  font-weight: 800;
+  margin-bottom: var(--space-3);
+  color: var(--primary);
+  text-wrap: balance;
 }
 
 .page-subtitle-two {
-	font-family: 'Montserrat', sans-serif;
-	font-size: 18px;
-	font-weight: 700;
-	color: #0C1736;
-	margin-bottom: 5px;
-	text-align: left;
-	letter-spacing: -0.5px;
+  font-size: 1.08rem;
+  font-weight: 700;
+  margin-bottom: var(--space-2);
+  color: var(--primary);
+}
+
+/* [FIX 7a] Constrained max-width for optimal reading length (65-75 chars) */
+.page-content p {
+  max-width: 680px;
+  margin: 0 auto 22px;
+  color: var(--text);
+}
+
+.page-content .page-subtitle,
+.page-content .page-subtitle-two {
+  max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .page-content ul {
-	list-style-position: outside;
-	padding-left: 0;
-	margin-left: 0;
-	margin-bottom: 10px;
-}
-  
-  .page-content li {
-	margin-left: 20px;   
-	margin-bottom: 1px;
-	line-height: 1.7;
+  max-width: 680px;
+  margin: 10px auto 22px;
+  padding-left: 22px;
 }
 
-/* Authentication Pages Styling */
+.page-content li {
+  margin-bottom: 10px;
+}
+
+/* ============================================================
+   NAVBAR
+   ============================================================ */
+
+.jp-navbar {
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(12, 23, 54, 0.08);
+}
+
+.jp-navbar-top {
+  width: min(100%, var(--max-width));
+  margin: 0 auto;
+  min-height: 108px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 18px var(--space-6);
+}
+
+.jp-navbar-title {
+  text-align: center;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.jp-navbar-spacer {
+  position: absolute;
+  left: var(--space-6);
+  width: 60px;
+  height: 60px;
+}
+
+.jp-navbar-profile {
+  position: absolute;
+  right: var(--space-6);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.jp-profile-link {
+  display: inline-flex;
+}
+
+.jp-profile-circle {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  border: 2px solid rgba(12, 23, 54, 0.16);
+  background: linear-gradient(180deg, #ffffff 0%, #eef3fb 100%);
+  position: relative;
+  box-shadow: 0 6px 20px rgba(12, 23, 54, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.jp-profile-link:hover .jp-profile-circle {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(12, 23, 54, 0.12);
+}
+
+.jp-profile-head {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--primary);
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.jp-profile-body {
+  width: 34px;
+  height: 18px;
+  background: var(--primary);
+  border-radius: 20px 20px 12px 12px;
+  position: absolute;
+  bottom: 13px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.jp-navbar-bottom {
+  width: min(100%, var(--max-width));
+  margin: 0 auto;
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 0 var(--space-5) 14px;
+  flex-wrap: wrap;
+}
+
+.jp-nav-link {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--muted);
+  padding: 10px var(--space-4);
+  border-radius: 999px;
+  letter-spacing: 0.01em;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.jp-nav-link:hover {
+  color: var(--primary);
+  background: rgba(12, 23, 54, 0.06);
+  border-color: rgba(12, 23, 54, 0.08);
+}
+
+.jp-active-link {
+  color: var(--primary);
+  background: rgba(12, 23, 54, 0.08);
+  border-color: rgba(12, 23, 54, 0.08);
+}
+
+/* ============================================================
+   AUTH
+   ============================================================ */
+
 .auth-container {
-	min-height: 100vh;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	padding: 20px;
-	background-color: #F7F7F7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
 }
 
 .auth-card {
-	background-color: white;
-	width: 100%;
-	max-width: 480px;
-	padding: 50px 60px;
-	border: 2px solid #0C1736;
-	box-shadow: 0 4px 12px rgba(12, 23, 54, 0.15);
+  width: 100%;
+  max-width: 520px;
+  padding: 42px 36px;
 }
 
 .auth-logo {
-	text-align: center;
-	margin-bottom: 35px;
+  text-align: center;
+  margin-bottom: 26px;
 }
 
 .auth-logo img {
-	max-width: 220px;
-	width: 100%;
-	height: auto;
-	display: inline-block;
+  width: 100%;
+  max-width: 220px;
+  height: auto;
 }
 
 .auth-title {
-	font-family: 'Montserrat', sans-serif;
-	font-size: 28px;
-	font-weight: 700;
-	color: #0C1736;
-	margin-bottom: 30px;
-	text-align: center;
-	letter-spacing: -0.5px;
+  font-size: 2rem;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 28px;
+  color: var(--primary);
 }
 
 .auth-form {
-	margin-bottom: 25px;
+  width: 100%;
+  margin-bottom: 20px;
 }
 
 .form-group {
-	margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .form-group label {
-	display: block;
-	font-family: 'Montserrat', sans-serif;
-	font-size: 14px;
-	font-weight: 500;
-	color: #475375;
-	margin-bottom: 8px;
-	letter-spacing: 0.3px;
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: var(--space-2);
 }
 
-.form-group input {
-	width: 100%;
-	padding: 14px 16px;
-	font-family: 'Montserrat', sans-serif;
-	font-size: 15px;
-	color: #0C1736;
-	border: 1.5px solid #DEE1E9;
-	background-color: white;
-	transition: all 0.3s ease;
-	outline: none;
+/* [FIX 1c] Removed outline:none â€” focus is handled by :focus-visible above */
+.form-group input,
+.form-group textarea,
+.form-group select,
+.account-input {
+  width: 100%;
+  min-height: 50px;
+  border-radius: 14px;
+  border: 1px solid rgba(12, 23, 54, 0.14);
+  background: rgba(255, 255, 255, 0.9);
+  padding: 13px var(--space-4);
+  font-size: 15px;
+  font-family: 'Montserrat', sans-serif;
+  color: var(--text);
+  transition: all 0.2s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
 }
 
-.form-group input:focus {
-	border-color: #475375;
-	box-shadow: 0 0 0 3px rgba(71, 83, 117, 0.1);
-}
-
-.form-group input:disabled {
-	background-color: #F7F7F7;
-	cursor: not-allowed;
-	opacity: 0.6;
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus,
+.account-input:focus {
+  border-color: var(--primary);
+  box-shadow:
+    var(--shadow-focus),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  background: #fff;
 }
 
 .form-group input::placeholder {
-	color: #999;
-	font-weight: 300;
+  color: #7a8599;
 }
 
-.auth-button {
-	width: 100%;
-	padding: 16px;
-	font-family: 'Montserrat', sans-serif;
-	font-size: 16px;
-	font-weight: 600;
-	color: white;
-	background-color: #0C1736;
-	border: none;
-	cursor: pointer;
-	transition: all 0.3s ease;
-	margin-top: 10px;
-	letter-spacing: 0.5px;
-	text-transform: uppercase;
+.form-group input:disabled {
+  background: #eff3f9;
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
-.auth-button:hover:not(:disabled) {
-	background-color: #475375;
-	transform: translateY(-1px);
-	box-shadow: 0 4px 8px rgba(12, 23, 54, 0.2);
+/* [FIX 4b] Date inputs: subtle background + icon space to distinguish from text */
+.form-group input[type="date"] {
+  background: rgba(237, 241, 247, 0.6);
+  padding-left: var(--space-3);
+  color: var(--muted);
+  position: relative;
 }
 
-.auth-button:active:not(:disabled) {
-	transform: translateY(0);
-	box-shadow: 0 2px 4px rgba(12, 23, 54, 0.2);
+.form-group input[type="date"]:valid {
+  color: var(--text);
 }
 
-.auth-button:disabled {
-	background-color: #DEE1E9;
-	color: #999;
-	cursor: not-allowed;
+/* ============================================================
+   BUTTONS â€” BASE + VARIANTS
+   [FIX 2] Visual hierarchy: primary, secondary, ghost, danger
+   ============================================================ */
+
+.auth-button,
+.account-action-button,
+.account-mini-edit-btn {
+  min-height: 50px;
+  border: none;
+  border-radius: 14px;
+  padding: var(--space-3) 18px;
+  background: linear-gradient(180deg, #1e315d 0%, #0c1736 100%);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+  box-shadow: 0 10px 24px rgba(12, 23, 54, 0.18);
+}
+
+/* [FIX 2c] Make auth-button full-width in auth forms */
+.auth-form .auth-button,
+.auth-card .auth-button {
+  width: 100%;
+}
+
+.auth-button:hover:not(:disabled),
+.account-action-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(12, 23, 54, 0.22);
+}
+
+.auth-button:disabled,
+.account-action-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* [FIX 2a] Secondary / ghost button for "Continue as Guest" etc. */
+.secondary-button,
+.ghost-button {
+  min-height: 50px;
+  border: 2px solid var(--primary);
+  border-radius: 14px;
+  padding: var(--space-3) 18px;
+  background: transparent;
+  color: var(--primary);
+  font-size: 15px;
+  font-weight: 800;
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: none;
+}
+
+.secondary-button:hover:not(:disabled),
+.ghost-button:hover:not(:disabled) {
+  background: rgba(12, 23, 54, 0.06);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(12, 23, 54, 0.1);
+}
+
+.secondary-button:disabled,
+.ghost-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* [FIX 2b] Danger button â€” more contrast and visual separation */
+.danger-button {
+  background: linear-gradient(180deg, #d44040 0%, var(--danger-strong) 100%);
+  box-shadow: 0 8px 20px rgba(165, 54, 54, 0.25);
+  letter-spacing: 0.02em;
+  position: relative;
+  padding-left: var(--space-5);
+}
+
+.danger-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(165, 54, 54, 0.35);
+}
+
+/* [FIX 2d] Mini edit button â€” more visible with border + stronger bg */
+.account-mini-edit-btn {
+  min-height: 38px;
+  padding: var(--space-2) var(--space-4);
+  background: rgba(12, 23, 54, 0.08);
+  color: var(--primary);
+  box-shadow: none;
+  border: 1px solid rgba(12, 23, 54, 0.15);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.account-mini-edit-btn:hover:not(:disabled) {
+  background: rgba(12, 23, 54, 0.14);
+  border-color: rgba(12, 23, 54, 0.25);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(12, 23, 54, 0.1);
 }
 
 .auth-error {
-	background-color: #DA886D;
-	color: white;
-	padding: 12px 16px;
-	margin-bottom: 20px;
-	font-family: 'Montserrat', sans-serif;
-	font-size: 14px;
-	font-weight: 500;
-	border-left: 4px solid #A9563A;
+  background: #fdeeee;
+  color: #8f2424;
+  border: 1px solid #efc4c4;
+  border-radius: 14px;
+  padding: var(--space-3) 14px;
+  margin-bottom: 18px;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .auth-links {
-	text-align: center;
-	font-family: 'Montserrat', sans-serif;
-	font-size: 14px;
-	color: #475375;
-	padding-top: 20px;
-	border-top: 1px solid #DEE1E9;
-}
-
-.auth-links span {
-	color: #475375;
-	margin-right: 8px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--muted);
+  padding-top: 18px;
+  margin-top: var(--space-2);
+  border-top: 1px solid rgba(12, 23, 54, 0.08);
 }
 
 .auth-link {
-	color: #A9563A;
-	text-decoration: none;
-	font-weight: 600;
-	transition: color 0.2s ease;
+  color: var(--accent);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1.5px;
 }
 
 .auth-link:hover {
-	color: #0C1736;
-	text-decoration: underline;
+  text-decoration-thickness: 2.5px;
+  color: var(--primary);
 }
 
 .auth-separator {
-	margin: 0 12px;
-	color: #DEE1E9;
+  margin: 0 10px;
+  color: #c9d1df;
+}
+
+/* ============================================================
+   SEARCH
+   ============================================================ */
+
+.search-page-main {
+  padding-top: 40px;
+  padding-bottom: 30px;
+  text-align: center;
+}
+
+.search-form-wrap {
+  width: 100%;
+  max-width: 880px;
+  margin: 0 auto;
+}
+
+/* [FIX 4c] form-row gap consistency */
+.form-row {
+  display: flex;
+  gap: var(--space-4);
+  width: 100%;
+}
+
+.form-row .form-group {
+  flex: 1;
 }
 
 .form-group.search-box {
   position: relative;
   display: flex;
   align-items: center;
+  
+ 
 }
 
-.form-group.search-box input {
+/* Ensure the input inside also takes full width */
+.form-group.search-box input#search_term {
   width: 100%;
-  padding-right: 40px; /* space for the button */
   box-sizing: border-box;
+}
+.form-group.search-box input {
+ width: 100%;
+  box-sizing: border-box;
+  padding-right: 54px;
 }
 
 .form-group.search-box .search-button {
   position: absolute;
-  right: 10px;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 26px;
+  height: 26px;
   background: transparent;
   border: none;
   cursor: pointer;
-  height: 30px; /* match input height */
-  width: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -303,196 +679,1186 @@ h1, h2, h3, h4, h5, h6, ul {
   max-height: 100%;
 }
 
-/* Responsive Design */
-@media (max-width: 600px) {
-	.auth-card {
-		padding: 40px 30px;
-	}
-	
-	.auth-logo img {
-		max-width: 180px;
-	}
-	
-	.auth-title {
-		font-size: 24px;
-	}
-}
-/*Nav bar and account page styling*/
-.jp-navbar {
-  width: 100%;
-  border: 2px solid #232742;
-  background: #f7f7f7;
-  margin-bottom: 40px;
-}
-
-.jp-navbar-top {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 120px;
-  border-bottom: 1.5px solid #232742;
-  padding: 0 30px;
-}
-
-.jp-navbar-title {
-  font-family: "Georgia", "Times New Roman", serif;
-  font-size: 4rem;
-  font-weight: 500;
-  color: #1d2342;
-  text-decoration: none;
-  text-align: center;
-}
-
-.jp-navbar-spacer {
-  position: absolute;
-  left: 30px;
-  width: 60px;
-}
-
-.jp-navbar-profile {
-  position: absolute;
-  right: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.jp-profile-link {
-  text-decoration: none;
-}
-
-.jp-profile-circle {
-  width: 68px;
-  height: 68px;
-  border: 4px solid #1f1f28;
-  border-radius: 50%;
-  position: relative;
-  box-sizing: border-box;
-}
-
-.jp-profile-head {
-  width: 20px;
-  height: 20px;
-  background: #1f1f28;
-  border-radius: 50%;
-  position: absolute;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.jp-profile-body {
-  width: 38px;
-  height: 20px;
-  background: #1f1f28;
-  border-radius: 20px 20px 12px 12px;
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.jp-navbar-bottom {
+/* [FIX 4a] Center-align search submit button to match form width */
+.search-submit-wrap {
+  margin-top: var(--space-4);
   display: flex;
   justify-content: center;
-  align-items: center;
-  gap: 42px;
-  min-height: 44px;
-  border-top: none;
 }
 
-.jp-nav-link {
-  text-decoration: none;
-  font-family: "Georgia", "Times New Roman", serif;
-  font-size: 1rem;
-  color: #1d2342;
-  letter-spacing: 0.02em;
+.search-submit-wrap .auth-button,
+.search-submit-wrap button {
+  min-width: 200px;
 }
 
-.jp-nav-link:hover {
-  text-decoration: underline;
-}
-
-.jp-active-link {
-  font-weight: 700;
-}
-.account-page-card {
-  max-width: 1100px;
-  min-height: 700px;
+.searchChips {
+  width: min(100%, var(--max-width));
   margin: 0 auto;
-  background: white;
-  border: 2px solid #222;
-  padding: 20px 24px 30px;
-  position: relative;
+  padding: 18px var(--space-6) 70px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
 }
+
+.result-card {
+  width: 100%;
+  max-width: 820px;
+  margin: 0 auto;
+  padding: var(--space-5);
+}
+
+.searches-header {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 14px;
+  text-transform: uppercase;
+  text-align: left;
+}
+
+.searches-list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 0;
+  margin: 0;
+}
+
+.searches-list li {
+  margin: 0;
+}
+
+.searches-list a {
+  display: inline-block;
+  padding: 9px 14px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #f7f9fd 0%, #edf2f9 100%);
+  border: 1px solid rgba(12, 23, 54, 0.08);
+  color: var(--primary);
+  font-size: 14px;
+  font-weight: 700;
+  transition: all 0.25s ease;
+}
+
+/* [FIX 6b] Softer hover: subtle scale + shadow instead of full color inversion */
+.searches-list a:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 16px rgba(12, 23, 54, 0.12);
+  border-color: rgba(12, 23, 54, 0.18);
+  background: linear-gradient(180deg, #edf2f9 0%, #e2e8f3 100%);
+}
+
+.auth-error {
+  max-width: 820px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ============================================================
+   ACCOUNT
+   [FIX 3c] Better vertical centering for account pages
+   ============================================================ */
 
 .account-content {
-  position: relative;
-  min-height: 560px;
+  padding-top: 42px;
+  padding-bottom: 72px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-height: calc(100vh - 200px);
+  justify-content: center;
 }
 
 .account-back-button {
-  position: absolute;
-  top: 0;
-  left: 0;
-  font-size: 20px;
+  align-self: flex-start;
+  font-size: 24px;
+  color: var(--muted);
   cursor: pointer;
+  margin-bottom: 18px;
+  transition: color 0.2s ease, transform 0.2s ease;
+  /* Ensure proper tap target */
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.account-back-button:hover {
+  color: var(--primary);
+  transform: translateX(-2px);
 }
 
 .account-profile-section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  margin-top: 70px;
+  gap: var(--space-4);
+  margin-top: 10px;
 }
 
 .account-avatar {
-  width: 130px;
-  height: 130px;
-  border: 2px solid #222;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 28px;
+  background: linear-gradient(180deg, #ffffff 0%, #edf2fa 100%);
+  border: 1px solid rgba(12, 23, 54, 0.1);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 10px 24px rgba(12, 23, 54, 0.08);
 }
 
 .account-avatar-icon {
-  font-size: 48px;
+  font-size: 46px;
 }
 
 .account-details {
   text-align: center;
-  font-size: 18px;
-  line-height: 1.9;
+}
+
+.account-details p {
+  margin: var(--space-2) 0;
+  font-size: 1.05rem;
+}
+
+.account-detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: var(--space-2) 0;
+}
+
+.account-detail-row p {
+  margin: 0;
 }
 
 .account-actions {
-  position: absolute;
-  bottom: 10px;
-  left: 0;
-  right: 0;
+  width: 100%;
+  max-width: 720px;
+  margin-top: var(--space-7);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.account-input {
+  max-width: 320px;
 }
 
 .account-action-button {
-  border: 2px solid #222;
-  background: white;
-  padding: 10px 18px;
-  font-size: 15px;
-  cursor: pointer;
+  min-width: 160px;
 }
 
+/* ============================================================
+   POPUP / NOTICE
+   ============================================================ */
+
+/* [FIX 6c] Smooth fade-in transition for overlay */
+.account-pop-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(12, 23, 54, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 9999;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.account-pop-bar,
+.account-confirm-bar {
+  width: min(100%, 520px);
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(12, 23, 54, 0.12);
+  border-radius: 20px;
+  padding: var(--space-5);
+  box-shadow: var(--shadow-md);
+  animation: slideUp 0.25s ease-out;
+}
+
+.account-pop-title {
+  margin-bottom: 10px;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.account-confirm-text {
+  margin: 6px 0 14px;
+  color: var(--text);
+  line-height: 1.65;
+}
+
+.account-pop-actions {
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+/* [FIX 6a] Entrance animation for account-notice (slide-in from right) */
+.account-notice {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 9999;
+  min-width: 240px;
+  max-width: 360px;
+  padding: var(--space-3) 14px;
+  border-radius: 14px;
+  font-weight: 700;
+  box-shadow: var(--shadow-md);
+  border: 1px solid transparent;
+  animation: slideInRight 0.35s ease-out;
+}
+
+.account-notice.success {
+  background: #eaf8ef;
+  color: #1f7a3d;
+  border-color: #c4ead0;
+}
+
+.account-notice.error {
+  background: #fdeeee;
+  color: #a12b2b;
+  border-color: #f0cbcb;
+}
+
+/* ============================================================
+   [FIX 6] ANIMATIONS
+   ============================================================ */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 1024px) {
+  .page-content,
+  .search-page-main,
+  .searchChips,
+  .account-content,
+  .jp-navbar-top,
+  .jp-navbar-bottom {
+    padding-left: var(--space-5);
+    padding-right: var(--space-5);
+  }
+}
+
+@media (max-width: 768px) {
+  /* [FIX 3a] Reduced navbar height on mobile */
+  .jp-navbar-top {
+    min-height: 68px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  .jp-navbar-title {
+    font-size: 1.65rem;
+    max-width: 60%;
+  }
+
+  .jp-navbar-profile {
+    right: 16px;
+  }
+
+  .jp-profile-circle {
+    width: 46px;
+    height: 46px;
+  }
+
+  .jp-profile-head {
+    width: 12px;
+    height: 12px;
+    top: 9px;
+  }
+
+  .jp-profile-body {
+    width: 24px;
+    height: 12px;
+    bottom: 9px;
+  }
+
+  .jp-navbar-spacer {
+    left: 16px;
+    width: 44px;
+    height: 44px;
+  }
+
+  /* [FIX 3b] Nav links: horizontally scrollable on small screens */
+  .jp-navbar-bottom {
+    padding-bottom: var(--space-3);
+    gap: var(--space-2);
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+    justify-content: flex-start;
+    padding-left: var(--space-4);
+  }
+
+  .jp-navbar-bottom::-webkit-scrollbar {
+    display: none;
+  }
+
+  .jp-nav-link {
+    font-size: 0.88rem;
+    padding: var(--space-2) var(--space-3);
+    flex-shrink: 0;
+  }
+
+  .page-title {
+    margin-top: var(--space-6);
+    margin-bottom: 20px;
+    font-size: 2.2rem;
+  }
+
+  .page-content,
+  .search-page-main,
+  .searchChips,
+  .account-content {
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
+
+  .page-content {
+    padding-top: 44px;
+    padding-bottom: var(--space-7);
+    font-size: 16px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .auth-card {
+    padding: var(--space-6) var(--space-5);
+  }
+
+  .account-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .account-input,
+  .account-action-button {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .result-card {
+    padding: var(--space-4);
+  }
+
+  /* [FIX 5c] Adjust scroll-margin for smaller navbar */
+  [id] {
+    scroll-margin-top: 140px;
+  }
+}
+
+@media (max-width: 480px) {
+  .jp-navbar-title {
+    font-size: 1.4rem;
+    max-width: 55%;
+  }
+
+  .page-title {
+    font-size: 1.7rem;
+  }
+
+  .auth-title {
+    font-size: 1.6rem;
+  }
+
+  .page-subtitle {
+    font-size: 1.2rem;
+  }
+
+  /* [FIX 5a] On 480px: nav links scrollable (inherited from 768px), chips full-width */
+  .searches-list a {
+    width: 100%;
+    text-align: center;
+  }
+
+  .account-pop-actions {
+    flex-direction: column;
+  }
+
+  .account-pop-actions button {
+    width: 100%;
+  }
+
+  /* [FIX 5b] Ensure auth cards don't overflow on very small screens */
+  .auth-card {
+    max-width: 100%;
+    padding: var(--space-5) var(--space-4);
+    border-radius: var(--radius-sm);
+  }
+
+  .auth-container {
+    padding: var(--space-4) var(--space-3);
+  }
+
+  /* Compact profile circle further */
+  .jp-profile-circle {
+    width: 40px;
+    height: 40px;
+  }
+
+  .jp-profile-head {
+    width: 10px;
+    height: 10px;
+    top: 8px;
+  }
+
+  .jp-profile-body {
+    width: 20px;
+    height: 10px;
+    bottom: 8px;
+  }
+
+  [id] {
+    scroll-margin-top: 120px;
+  }
+}
+
+/* ============================================================
+   RETRO NEWSPAPER OVERRIDES
+   ============================================================ */
+
+/* Fix case: force uppercase for main headings and buttons */
+.page-title,
+.searches-header,
+.jp-nav-link,
+.auth-button,
+.secondary-button,
+.ghost-button,
 .danger-button {
-  position: absolute;
-  left: 0;
-  bottom: 0;
+  text-transform: uppercase !important;
+  font-family: 'Georgia', serif !important;
+  letter-spacing: 0.05em;
 }
 
-.account-actions .account-action-button:last-child {
-  position: absolute;
-  right: 0;
-  bottom: 0;
+/* Boxy layout: remove border-radius, add solid borders */
+.form-group input,
+.form-group textarea,
+.form-group select,
+.account-input,
+.auth-button,
+.secondary-button,
+.ghost-button,
+.danger-button,
+.result-card,
+.searches-list a {
+  border-radius: 0 !important;
+  border: 2px solid #000 !important;
+  box-shadow: none !important;
+  background: #fdf9f3 !important;
+  color: #000 !important;
+  font-weight: 700 !important;
+  font-family: 'Georgia', serif !important;
+  transition: none !important;
 }
-/*Done */
+
+/* Inputs and buttons hover/focus */
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus,
+.account-input:focus,
+.auth-button:hover,
+.secondary-button:hover,
+.ghost-button:hover,
+.danger-button:hover {
+  border-color: #222 !important;
+  background: #fff !important;
+  color: #222 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Search form wrapper boxy */
+.search-form-wrap {
+  border: 3px solid #000;
+  background: #fdf9f3;
+  padding: 24px;
+  box-shadow: none;
+  border-radius: 0;
+  max-width: 900px;
+  margin: 0 auto 40px auto;
+}
+
+/* Search submit button full width and boxy */
+.search-submit-wrap .auth-button,
+.search-submit-wrap button {
+  width: 100% !important;
+  border-radius: 0 !important;
+  border: 3px solid #000 !important;
+  background: #000 !important;
+  color: #fdf9f3 !important;
+  font-family: 'Georgia', serif !important;
+  font-weight: 900 !important;
+  font-size: 1.2rem !important;
+  padding: 16px 0 !important;
+  box-shadow: none !important;
+  transition: none !important;
+}
+
+.search-submit-wrap .auth-button:hover,
+.search-submit-wrap button:hover {
+  background: #222 !important;
+  border-color: #222 !important;
+  color: #fff !important;
+}
+
+/* Result card boxy with strong border */
+.result-card {
+  border: 3px solid #000 !important;
+  background: #fdf9f3 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 32px !important;
+  margin-bottom: 40px !important;
+}
+
+/* Search chips (top results) boxy */
+.searches-list a {
+  border-radius: 0 !important;
+  border: 2px solid #000 !important;
+  background: #fdf9f3 !important;
+  color: #000 !important;
+  font-family: 'Georgia', serif !important;
+  font-weight: 700 !important;
+  padding: 10px 18px !important;
+  box-shadow: none !important;
+  transition: none !important;
+}
+
+.searches-list a:hover {
+  background: #fff !important;
+  border-color: #222 !important;
+  color: #222 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Navbar title retro serif font and boxy */
+.jp-navbar-title {
+  font-family: 'Georgia', serif !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.1em !important;
+  color: #000 !important;
+  text-shadow: none !important;
+}
+
+/* Navbar background cream */
+.jp-navbar {
+  background: #fdf9f3 !important;
+  border-bottom: 3px solid #000 !important;
+  box-shadow: none !important;
+}
+
+/* Navbar links boxy and uppercase */
+.jp-nav-link {
+  border-radius: 0 !important;
+  border: 2px solid transparent !important;
+  font-family: 'Georgia', serif !important;
+  font-weight: 700 !important;
+  color: #000 !important;
+  text-transform: uppercase !important;
+  padding: 10px 16px !important;
+  transition: none !important;
+}
+
+.jp-nav-link:hover {
+  background: #000 !important;
+  color: #fdf9f3 !important;
+  border-color: #000 !important;
+  box-shadow: none !important;
+}
+
+/* Body background subtle paper texture */
+body {
+  background-color: #fdf9f3 !important;
+  background-image:
+    repeating-linear-gradient(0deg, #fdf9f3, #fdf9f3 10px, #f7f1e1 10px, #f7f1e1 11px);
+}
+
+/* Page title bigger and bolder */
+.page-title {
+  font-size: 4rem !important;
+  font-weight: 900 !important;
+  color: #000 !important;
+  text-shadow: none !important;
+  margin-bottom: 40px !important;
+  font-family: 'Georgia', serif !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+}
+
+/* Change the result card to a flex column layout */
+.result-card {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px; /* Adds consistent spacing between elements */
+}
+
+/* Move the internal graph container to the top */
+.result-card .ai-style-change-4 { /* Or use the direct container's class */
+  order: -1;                     /* This moves it above the header */
+  width: 100% !important;
+}
+
+/* Ensure the header and list keep their standard order */
+.result-card .searches-header {
+  order: 0;
+}
+
+
+/* [FIX 4a] Search Page: Full-Width Search Bar (persistent CSS equivalent of runtime style patch) */
+.form-group.search-box {
+  width: 100% !important;
+  max-width: none !important;
+  flex-grow: 1 !important;
+}
+
+/* ============================================================
+   [FIX 4a] Search Page: Full-Width Search Bar
+   ============================================================ */
+
+.form-group.search-box {
+  width: 100%;       /* Fill the parent row */
+  max-width: none;   /* Remove the 240px constraint */
+  flex-grow: 1;      /* Grow within the flex container */
+  margin-bottom: 24px;
+}
+
+/* Ensure the input inside expands correctly */
+.form-group.search-box input#search_term {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Container for the search bar and inputs */
+.search-form-wrap {
+  max-width: 720px;
+  margin: 0 auto 40px auto;
+  padding: 24px;
+  border: 3px solid #000;
+  background: #fdf9f3;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+/* Search bar input container */
+.form-group.search-box {
+  width: 100%;       /* Ensures it fills the width of the row */
+  max-width: none;    /* Removes the 240px restriction */
+  flex-grow: 1;      /* Allows it to expand in a flex container */
+  margin-bottom: 24px;
+ 
+  position: relative;
+}
+
+/* Search bar input */
+.form-group.search-box input {
+  width: 100%;
+  padding-right: 40px;
+  color: #000 !important;
+  background: #fdf9f3 !important;
+  border: 2px solid #000 !important;
+  border-radius: 0 !important;
+}
+
+/* Form row inputs (below search bar) */
+.form-row {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: nowrap;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* Each input in the row */
+.form-row .form-group {
+  flex: 1 1 0;
+  max-width: 240px;
+  border: 2px solid #000 !important;
+  background: #fdf9f3 !important;
+  padding: 8px !important;
+  border-radius: 0 !important;
+}
+
+/* Results container */
+.searchChips {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto 70px auto;
+  padding: 0 24px;
+  box-sizing: border-box;
+}
+
+/* Result card full width */
+.result-card {
+  width: 100%;
+  margin-bottom: 40px !important;
+  padding: 32px !important;
+  border: 3px solid #000 !important;
+  background: #fdf9f3 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+/* About page: keep navbar static (not sticky) */
+.about-page .jp-navbar {
+  position: static !important;
+  top: auto !important;
+}
+
+/* Container for Bar Graph, Word Web, Download buttons */
+.visualizer-buttons-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 400px;
+  margin: 0 auto 32px auto;
+  padding: 16px;
+  border: 3px solid #000;
+  background: #fdf9f3;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+/* Style for Bar Graph, Word Web, Download buttons */
+.visualizer-buttons-container button {
+  border-radius: 0 !important;
+  border: 3px solid #000 !important;
+  background: #fdf9f3 !important;
+  color: #000 !important;
+  font-family: 'Georgia', serif !important;
+  font-weight: 900 !important;
+  font-size: 1rem !important;
+  padding: 12px 0 !important;
+  cursor: pointer;
+  transition: none !important;
+  text-transform: uppercase !important;
+  box-shadow: none !important;
+  width: 100%;
+  text-align: center;
+}
+
+.visualizer-buttons-container button:hover {
+  background: #000 !important;
+  color: #fdf9f3 !important;
+  border-color: #000 !important;
+}
+
+/* Shorten and center the search bar and inputs */
+.search-form-wrap {
+  max-width: 720px;
+  margin: 0 auto 40px auto;
+  padding: 24px;
+  border: 3px solid #000;
+  background: #fdf9f3;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+/* Form row inputs and search bar */
+.form-row {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.form-row .form-group {
+  flex: 1 1 200px;
+  max-width: 240px;
+  border: 2px solid #000 !important;
+  background: #fdf9f3 !important;
+  padding: 8px !important;
+  border-radius: 0 !important;
+}
+
+/* Search box input */
+.form-group.search-box input {
+  padding-right: 40px;
+  color: #000 !important;
+  background: #fdf9f3 !important;
+  border: 2px solid #000 !important;
+  border-radius: 0 !important;
+}
+
+/* Search icon button */
+.form-group.search-box .search-button {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  background: #000 !important;
+  border: 2px solid #000 !important;
+  border-radius: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: none !important;
+}
+
+/* Search icon image inside button */
+.form-group.search-box .search-button img {
+  filter: invert(100%) brightness(150%);
+  width: 16px;
+  height: 16px;
+}
+
+/* Search icon button hover */
+.form-group.search-box .search-button:hover {
+  background: #222 !important;
+  border-color: #222 !important;
+}
+
+/* Search submit button */
+.search-submit-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.search-submit-wrap .auth-button,
+.search-submit-wrap button {
+  min-width: 180px;
+  max-width: 240px;
+  width: 100%;
+  border-radius: 0 !important;
+  border: 3px solid #000 !important;
+  background: #000 !important;
+  color: #fdf9f3 !important;
+  font-family: 'Georgia', serif !important;
+  font-weight: 900 !important;
+  font-size: 1.1rem !important;
+  padding: 12px 0 !important;
+  box-shadow: none !important;
+  transition: none !important;
+  text-transform: uppercase !important;
+}
+
+.search-submit-wrap .auth-button:hover,
+.search-submit-wrap button:hover {
+  background: #222 !important;
+  border-color: #222 !important;
+  color: #fff !important;
+}
+
+/* Form row inputs boxy */
+.form-row .form-group {
+  border: 2px solid #000 !important;
+  background: #fdf9f3 !important;
+  padding: 8px !important;
+  border-radius: 0 !important;
+}
+
+/* Date inputs boxy */
+.form-group input[type="date"] {
+  background: #fdf9f3 !important;
+  border: 2px solid #000 !important;
+  color: #000 !important;
+  padding-left: 12px !important;
+  border-radius: 0 !important;
+}
+
+/* Search icon button boxy */
+.form-group.search-box .search-button {
+  background: #000 !important;
+  border: 2px solid #000 !important;
+  border-radius: 0 !important;
+  width: 36px !important;
+  height: 36px !important;
+  transition: none !important;
+}
+
+.form-group.search-box .search-button:hover {
+  background: #222 !important;
+  border-color: #222 !important;
+}
+
+/* Scrollbar for search results */
+.searches-list {
+  scrollbar-width: thin;
+  scrollbar-color: #000 #fdf9f3;
+}
+
+.searches-list::-webkit-scrollbar {
+  height: 8px;
+}
+
+.searches-list::-webkit-scrollbar-track {
+  background: #fdf9f3;
+}
+
+.searches-list::-webkit-scrollbar-thumb {
+  background-color: #000;
+  border-radius: 0;
+  border: none;
+}
+
+/* Retro refinement: reduce width, center, and unify all action buttons */
+.auth-button,
+.account-action-button,
+.account-mini-edit-btn,
+.secondary-button,
+.ghost-button,
+.danger-button {
+  border-radius: 0 !important;
+  border: 3px solid #000 !important;
+  background: #fdf9f3 !important;
+  color: #000 !important;
+  font-family: 'Georgia', serif !important;
+  font-weight: 800 !important;
+  box-shadow: none !important;
+}
+
+.auth-button:hover,
+.account-action-button:hover,
+.account-mini-edit-btn:hover,
+.secondary-button:hover,
+.ghost-button:hover,
+.danger-button:hover {
+  background: #fff !important;
+  color: #111 !important;
+  border-color: #111 !important;
+  transform: none !important;
+}
+
+/* Keep search/account/modal buttons compact and centered */
+.search-page-main .auth-form .auth-button,
+.search-submit-wrap .auth-button,
+.search-submit-wrap button,
+.account-actions .account-action-button,
+.account-pop-actions .account-action-button {
+  width: min(340px, 100%) !important;
+  max-width: 340px;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.search-page-main .auth-form > div:last-child,
+.account-actions,
+.account-pop-actions {
+  justify-content: center !important;
+}
+
+/* Keep icon-sized controls from inheriting large button sizing */
+.form-group.search-box .search-button,
+.form-group.search-box .search-button:hover {
+  width: 36px !important;
+  height: 36px !important;
+}
+
+/* ============================================================
+   RETRO NEWSPAPER OVERRIDES v2
+   ============================================================ */
+
+/* Fix case: force uppercase for main headings and buttons */
+.page-title,
+.searches-header,
+.jp-nav-link,
+.auth-button,
+.secondary-button,
+.ghost-button,
+.danger-button,
+.account-action-button,
+.account-mini-edit-btn,
+.account-pop-actions button {
+  text-transform: uppercase !important;
+  font-family: 'Georgia', serif !important;
+  letter-spacing: 0.05em;
+}
+
+/* Boxy layout: remove border-radius, add solid borders */
+.form-group input,
+.form-group textarea,
+.form-group select,
+.account-input,
+.auth-button,
+.secondary-button,
+.ghost-button,
+.danger-button,
+.account-action-button,
+.account-mini-edit-btn,
+.result-card,
+.searches-list a,
+.account-pop-bar,
+.account-confirm-bar {
+  border-radius: 0 !important;
+  border: 2px solid #000 !important;
+  box-shadow: none !important;
+  background: #fdf9f3 !important;
+  color: #000 !important;
+  font-weight: 700 !important;
+  font-family: 'Georgia', serif !important;
+  transition: none !important;
+}
+
+/* Unified Button Sizing & Centering */
+.auth-button,
+.secondary-button,
+.ghost-button,
+.danger-button,
+.account-action-button,
+.account-pop-actions button {
+  min-width: 180px !important;
+  width: auto !important;
+  max-width: 240px !important;
+  padding: 12px 24px !important;
+  margin: 8px auto !important;
+  display: block !important;
+  text-align: center !important;
+}
+
+/* Special handling for button groups (Account & Popups) */
+.account-actions,
+.account-pop-actions {
+  display: flex !important;
+  justify-content: center !important;
+  gap: 16px !important;
+  flex-wrap: wrap !important;
+  width: 100% !important;
+}
+
+.account-actions .account-action-button,
+.account-pop-actions button {
+  margin: 0 !important;
+}
+
+/* Inputs and buttons hover/focus */
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus,
+.account-input:focus,
+.auth-button:hover,
+.secondary-button:hover,
+.ghost-button:hover,
+.danger-button:hover,
+.account-action-button:hover {
+  border-color: #222 !important;
+  background: #fff !important;
+  color: #222 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Search form wrapper boxy */
+.search-form-wrap {
+  border: 3px solid #000;
+  background: #fdf9f3;
+  padding: 24px;
+  box-shadow: none;
+  border-radius: 0;
+  max-width: 900px;
+  margin: 0 auto 40px auto;
+}
+
+/* Search submit button specific styling */
+.search-submit-wrap {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.search-submit-wrap .auth-button,
+.search-submit-wrap button {
+  background: #000 !important;
+  color: #fdf9f3 !important;
+  border: 3px solid #000 !important;
+  font-weight: 900 !important;
+  font-size: 1.1rem !important;
+}
+
+/* Result card boxy with strong border */
+.result-card {
+  border: 3px solid #000 !important;
+  background: #fdf9f3 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 32px !important;
+  margin-bottom: 40px !important;
+}
+
+/* Navbar title retro serif font and boxy */
+.jp-navbar-title {
+  font-family: 'Georgia', serif !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.1em !important;
+  color: #000 !important;
+  text-shadow: none !important;
+}
+
+/* Navbar background cream */
+.jp-navbar {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 9999 !important; /* High z-index to stay on top */
+  background: #fdf9f3 !important; /* Keep the retro cream background */
+  border-bottom: 3px solid #000 !important;
+  box-shadow: none !important;
+}
+
+/* Body background subtle paper texture */
+body {
+  background-color: #fdf9f3 !important;
+  background-image:
+    repeating-linear-gradient(0deg, #fdf9f3, #fdf9f3 10px, #f7f1e1 10px, #f7f1e1 11px);
+}
+
+/* Page title bigger and bolder */
+.page-title {
+  font-size: 4rem !important;
+  font-weight: 900 !important;
+  color: #000 !important;
+  text-shadow: none !important;
+  margin-bottom: 40px !important;
+  font-family: 'Georgia', serif !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+}

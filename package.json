@@ -1,7 +1,11 @@
 {
   "dependencies": {
     "@babel/runtime": "^7.28.6",
+<<<<<<< HEAD
     "react-multi-select-component": "^4.3.4",
+=======
+    "firebase": "^12.11.0",
+>>>>>>> Auth
     "regenerator-runtime": "^0.14.1"
   },
   "devDependencies": {

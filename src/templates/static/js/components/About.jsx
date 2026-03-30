@@ -3,7 +3,7 @@ import NavBar from './NavBar';
 
 const About = () => {
   return (
-    <div className="page-container">
+    <div className="page-container about-page">
       <div className="page-card">
         <div className="auth-logo">
           <NavBar />
