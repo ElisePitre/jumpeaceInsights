@@ -367,7 +367,8 @@ export default class Search extends Component {
         search_results: this.devData.search_results.results,
         decade_comparison_results: this.state.destination_term.trim() !== ''
           ? this.devData.decade_comparison_results
-          : {}
+          : {},
+        loading: false,
       });
       return;
     }
@@ -395,7 +396,8 @@ export default class Search extends Component {
       if (response.ok) {
         this.setState({
           search_results: this.mapApiResultsToVectors(data),
-          decade_comparison_results: data.decade_comparison_results || data.decadeComparisonResults || {}
+          decade_comparison_results: data.decade_comparison_results || data.decadeComparisonResults || {},
+          loading: false,
         });
 
         // Log search to Firebase database for authenticated users

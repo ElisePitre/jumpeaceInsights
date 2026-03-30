@@ -1,9 +1,11 @@
 # This file should contain all API functions for the main file to communicate with ML
 
-from cmath import log
+import logging
 import numpy as np
 from huggingface_hub import hf_hub_download
 from gensim.models import Word2Vec
+
+log = logging.getLogger(__name__)
 
 # This function should process the start and end times to select/merge models
 def selectModels(startDecade, endDecade):
