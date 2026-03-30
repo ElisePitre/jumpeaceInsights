@@ -541,12 +541,14 @@ export default class Search extends Component {
           && resultTitle !== ""
           && this.results()
         }
-        {
-          !this.state.isGuest
-          && this.state.past_searches.length !== 0
-          && this.searches('past')
-        }
-        {this.searches('popular')}
+        <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', justifyContent: 'center' }}>
+          {
+            !this.state.isGuest
+            && this.state.past_searches.length !== 0
+            && <div style={{ flex: '0 1 auto' }}>{this.searches('past')}</div>
+          }
+          <div style={{ flex: '0 1 auto' }}>{this.searches('popular')}</div>
+        </div>
       </div>
     );
   }
@@ -555,12 +557,8 @@ export default class Search extends Component {
 
     return (
       <div className="page-container">
+        <NavBar />
         <div className="page-card">
-          {/* <div className="auth-logo"> */}
-          {/*   <img src="/public/images/typefaceLogo.png" alt="Tinos logo" /> */}
-          {/* </div> */}
-
-          <NavBar />
 
           <h2 className="page-title">Search</h2>
 
@@ -592,6 +590,7 @@ export default class Search extends Component {
             {/* Second row: start_date | end_date | destination_term */}
             <div className="form-row" style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
               <div className="form-group" style={{ flex: 1 }}>
+                <label htmlFor="start_date">Start Decade</label>
                 <select
                   id="start_date"
                   value={this.state.start_date}
@@ -614,6 +613,7 @@ export default class Search extends Component {
               </div>
 
               <div className="form-group" style={{ flex: 1 }}>
+                <label htmlFor="end_date">End Decade</label>
                 <select
                   id="end_date"
                   value={this.state.end_date}
@@ -627,6 +627,7 @@ export default class Search extends Component {
               </div>
 
               <div className="form-group" style={{ flex: 2 }}>
+                <label htmlFor="destination_term">Destination Term</label>
                 <input
                   type="text"
                   id="destination_term"
@@ -637,14 +638,13 @@ export default class Search extends Component {
                 />
               </div>
             </div>
-
-            {/* Submit button */}
-            <div style={{ marginTop: '10px' }}>
-              <button type="submit" className="auth-button" disabled={this.state.loading}>
-                {this.state.loading ? 'Searching...' : 'Search'}
-              </button>
-            </div>
           </form>
+
+          {/* Site blurb */}
+          <div className="site-blurb">
+            <h3 className="site-blurb-header">Explore semantic shifts across centuries</h3>
+            <p className="site-blurb-text">Discover how the meaning and relationships between words have evolved from the 1770s to the 1960s, powered by decade-specific language models trained on historical English texts.</p>
+          </div>
 
           <this.searchChips />
 

@@ -4,10 +4,8 @@ import NavBar from './NavBar';
 const About = () => {
   return (
     <div className="page-container about-page">
+      <NavBar />
       <div className="page-card">
-        <div className="auth-logo">
-          <NavBar />
-        </div>
 
         <h2 className="page-title">About</h2>
 

@@ -4,12 +4,8 @@ import NavBar from './NavBar';
 const Help = () => {
   return (
     <div className="page-container">
+      <NavBar />
       <div className="page-card">
-        {/* <div className="auth-logo"> */}
-        {/*   <img src="/public/images/typefaceLogo.png" alt="Tinos logo" /> */}
-        {/* </div> */}
-
-          <NavBar />
 
         <h2 className="page-title">Help</h2>
 
