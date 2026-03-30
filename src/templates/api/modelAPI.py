@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 # This function should process the start and end times to select/merge models
 def selectModels(startDecade, endDecade):
     models = {}
-    EARLIEST_DECADE = 1770
+    EARLIEST_DECADE = 1790
     LATEST_DECADE = 1960
 
     startDecade = max(EARLIEST_DECADE, startDecade)

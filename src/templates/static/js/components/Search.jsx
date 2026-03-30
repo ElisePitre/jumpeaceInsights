@@ -417,7 +417,7 @@ export default class Search extends Component {
         }
       } else {
         this.setState({
-          error: data.message || 'Search failed. Please try again.',
+          error: data.message || 'Word not in vocabulary. Please try again with a different word or adjust the date range.',
           loading: false
         });
       }
