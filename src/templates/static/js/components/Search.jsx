@@ -79,7 +79,7 @@ export const decadeComparisonOptions = {
 };
 
 const DECADES = [
-  "1770", "1780", "1790", "1800", "1810", "1820", "1830",
+   "1790", "1800", "1810", "1820", "1830",
   "1840", "1850", "1860", "1870", "1880", "1890", "1900",
   "1910", "1920", "1930", "1940", "1950", "1960",
 ];
@@ -403,6 +403,19 @@ export default class Search extends Component {
         // Log search to Firebase database for authenticated users
         const user = auth.currentUser;
         if (user && !user.isAnonymous) {
+          const searchedWord = String(this.state.search_term || '').trim();
+
+          if (searchedWord) {
+            this.setState((prevState) => {
+              const nextPastSearches = [
+                searchedWord,
+                ...prevState.past_searches.filter((word) => word !== searchedWord),
+              ].slice(0, 5);
+
+              return { past_searches: nextPastSearches };
+            });
+          }
+
           try {
             await addSearchToDatabase(
               user.uid,
@@ -410,6 +423,8 @@ export default class Search extends Component {
               Number(this.state.start_date),
               Number(this.state.end_date)
             );
+
+            await this.getSearches("past", searchedWord);
           } catch (dbErr) {
             console.error('Error logging search to database:', dbErr);
             // Don't show error to user - search was successful
@@ -450,7 +465,7 @@ export default class Search extends Component {
     };
   };
 
-  getSearches = async (type) => {
+  getSearches = async (type, prependWord = '') => {
     if (this.devMode) {
       this.setState({ [type + "_searches"]: this.devData[type + "_searches"].searches });
       return;
@@ -469,6 +484,14 @@ export default class Search extends Component {
         if (user && !user.isAnonymous) {
           const pastData = await getPastSearches(user.uid);
           results = pastData.map(item => item.word);
+
+          const normalizedPrependWord = String(prependWord || '').trim();
+          if (normalizedPrependWord) {
+            results = [
+              normalizedPrependWord,
+              ...results.filter((word) => word !== normalizedPrependWord),
+            ].slice(0, 5);
+          }
         }
       }
 
