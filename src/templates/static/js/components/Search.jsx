@@ -61,9 +61,9 @@ export const decadeComparisonOptions = {
 };
 
 const DECADES = [
-  "1770s", "1780s", "1790s", "1800s", "1810s", "1820s", "1830s",
-  "1840s", "1850s", "1860s", "1870s", "1880s", "1890s", "1900s",
-  "1910s", "1920s", "1930s", "1940s", "1950s", "1960s",
+  "1770", "1780", "1790", "1800", "1810", "1820", "1830",
+  "1840", "1850", "1860", "1870", "1880", "1890", "1900",
+  "1910", "1920", "1930", "1940", "1950", "1960",
 ];
 
 const dev_past_searches = require("../../../public/dummy_data/past-searches.json");
@@ -284,7 +284,7 @@ export default class Search extends Component {
     }
   }
 
-  devMode = true;
+  devMode = false;
   devData = {
     past_searches: dev_past_searches,
     popular_searches: dev_popular_searches,
@@ -304,7 +304,7 @@ export default class Search extends Component {
     let search = false;
     SEARCH_PARAMS.forEach((param, index) => {
       console.log(params.get(param), index);
-      if (params.get(param) !== this.state[param]) {
+      if (params.get(param) !== this.state[param] && params.get(param) !== '') {
         this.setState({
           [param]: params.get(param) ?? ''
         }, () => {
@@ -357,14 +357,15 @@ export default class Search extends Component {
     this.setState({ error: '', loading: true });
 
     try {
-      const response = await fetch('/api/search', {
+      const response = await fetch('http://localhost:3000/query', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          search_term: this.state.search_term,
-          destination_term: this.state.destination_term,
-          start_date: this.state.start_date,
-          end_date: this.state.end_date,
+          query_word: this.state.search_term,
+          destination_word: this.state.destination_term,
+          start_year: Number(this.state.start_date),
+          end_year: Number(this.state.end_date),
+          clean_results: true,
         })
       });
 
@@ -407,7 +408,7 @@ export default class Search extends Component {
     }
 
     try {
-      const response = await fetch('/api/' + this.searchesMap[type].apiCall, {
+      const response = await fetch('http://localhost:3000' + this.searchesMap[type].apiCall, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -607,7 +608,7 @@ export default class Search extends Component {
                   disabled={this.state.loading}
                 >
                   {DECADES.map((d) => (
-                    <option key={d} value={d}>{d}</option>
+                    <option key={`${d}s`} value={d}>{d}</option>
                   ))}
                 </select>
               </div>
@@ -621,7 +622,7 @@ export default class Search extends Component {
                   disabled={this.state.loading}
                 >
                   {DECADES.filter((d) => DECADES.indexOf(d) >= DECADES.indexOf(this.state.start_date)).map((d) => (
-                    <option key={d} value={d}>{d}</option>
+                    <option key={`${d}s`} value={d}>{d}</option>
                   ))}
                 </select>
               </div>

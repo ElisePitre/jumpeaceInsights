@@ -1,10 +1,22 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS # Import CORS
 import time
 from api.modelAPI import selectModels, calculate_weighted_average
 from api.decadeAPI import selectModel as decadeSelectModel, query as decadeQuery
 from api.cleanResultsAPI import clean_results
 
 app = Flask(__name__)
+
+@app.after_request
+def add_cors_headers(response):
+    response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5000')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    return response
+
+@app.route('/<path:path>', methods=['OPTIONS'])
+def returnOptions(path):
+    return '', 200
 
 @app.route("/query", methods=["POST"])
 def processQuery():
