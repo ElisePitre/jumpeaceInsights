@@ -32,14 +32,14 @@
 
 # 1. Environment Setup
 
-## 1.1 Terminal 1: Back end
-1. cd into `project-setup-jumpeace_g3/src`
-
-### 1.1.1 Create Virtual Environment
+### 1.1 Create Virtual Environment
 1. run `python3 -m venv venv`
 2. Start venv
     a. If in linux, run `source venv/bin/activate`
     b, If in Windows, run `venv\Scripts\activate.bat`
+
+## 1.1.1 Terminal 1: Back end
+1. cd into `project-setup-jumpeace_g3/src`
 
 ### 1.1.2 Install python dependencies
 1. run `pip install -r requirements.txt`
@@ -47,17 +47,14 @@
 ### 1.1.3 Start backend
 1. run `python3 run.py`
 
-### 1.2 Terminal 2: Start second backend
-1. repeat 1.1 under `project-setup-jumpeace_g3/backend`
-
-## 1.3 Terminal 3: Front end
+## 1.2 Terminal 2: Front end
 1. cd into `project-setup-jumpeace_g3/src/templates/static`
 
-### 1.3.1 Install node modules
+### 1.2.1 Install node modules
 1. run `npm install`
 
-### 1.3.2 Start frontend
+### 1.2.2 Start frontend
 1. run `npm run watch`
 
-## 1.4 Web browser: Access Website
+## 1.3 Web browser: Access Website
 1. Go to `localhost:5000`
