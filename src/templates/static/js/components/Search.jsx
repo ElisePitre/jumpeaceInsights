@@ -1,11 +1,11 @@
-import React, { Component, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import NavBar from './NavBar';
-import { Bar, Line } from 'react-chartjs-2';
+import React, { Component, useEffect } from "react";
+import { Link } from "react-router-dom";
+import NavBar from "./NavBar";
+import { Bar, Line } from "react-chartjs-2";
 import WordCloud from "react-wordcloud";
 import * as htmlToImage from "html-to-image";
-import { auth, getPastSearches, getPopularSearches, addSearchToDatabase } from '../firebase/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { auth, getPastSearches, getPopularSearches, addSearchToDatabase } from "../firebase/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 export const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,
@@ -15,26 +15,30 @@ export const chartOptions = {
       right: 12,
       bottom: 24,
       left: 12,
-    }
+    },
   },
   legend: false,
   scales: {
-    yAxes: [{
-      ticks: { min: 0.5, beginAtZero: false },
-      scaleLabel: {
-        display: true,
-        labelString: 'Closeness to search term',
-        fontStyle: 'bold'
-      }
-    }],
-    xAxes: [{
-      scaleLabel: {
-        display: true,
-        labelString: 'Related terms',
-        fontStyle: 'bold'
-      }
-    }]
-  }
+    yAxes: [
+      {
+        ticks: { min: 0.5, beginAtZero: false },
+        scaleLabel: {
+          display: true,
+          labelString: "Closeness to search term",
+          fontStyle: "bold",
+        },
+      },
+    ],
+    xAxes: [
+      {
+        scaleLabel: {
+          display: true,
+          labelString: "Related terms",
+          fontStyle: "bold",
+        },
+      },
+    ],
+  },
 };
 export const mapOptions = {
   options: {
@@ -44,9 +48,19 @@ export const mapOptions = {
     fontFamily: "montserrat",
     fontSizes: [20, 30],
     fontWeight: "bold",
+    colors: ["#76cf64", "#020f00"],
+  },
+  callbacks: {
+    getWordColor: (word) => {
+      const normalized = Math.min(Math.max(Number(word.value) || 0, 0), 1);
+      const sensitivity = Math.pow(normalized, 0.4);
+      const lightness = 18 + (1 - sensitivity) * 62;
+      return `hsl(140, 90%, ${lightness}%)`;
+    },
   },
   size: [10, 50],
 };
+
 export const decadeComparisonOptions = {
   responsive: true,
   maintainAspectRatio: false,
@@ -56,32 +70,51 @@ export const decadeComparisonOptions = {
       right: 12,
       bottom: 24,
       left: 12,
-    }
+    },
   },
   legend: false,
   scales: {
-    yAxes: [{
-      ticks: { min: 0, max: 1, beginAtZero: true },
-      scaleLabel: {
-        display: true,
-        labelString: 'Closeness of terms',
-        fontStyle: 'bold'
-      }
-    }],
-    xAxes: [{
-      scaleLabel: {
-        display: true,
-        labelString: 'Decade',
-        fontStyle: 'bold'
-      }
-    }]
-  }
+    yAxes: [
+      {
+        ticks: { min: 0, max: 1, beginAtZero: true },
+        scaleLabel: {
+          display: true,
+          labelString: "Closeness of terms",
+          fontStyle: "bold",
+        },
+      },
+    ],
+    xAxes: [
+      {
+        scaleLabel: {
+          display: true,
+          labelString: "Decade",
+          fontStyle: "bold",
+        },
+      },
+    ],
+  },
 };
 
 const DECADES = [
-   "1790", "1800", "1810", "1820", "1830",
-  "1840", "1850", "1860", "1870", "1880", "1890", "1900",
-  "1910", "1920", "1930", "1940", "1950", "1960",
+  "1790",
+  "1800",
+  "1810",
+  "1820",
+  "1830",
+  "1840",
+  "1850",
+  "1860",
+  "1870",
+  "1880",
+  "1890",
+  "1900",
+  "1910",
+  "1920",
+  "1930",
+  "1940",
+  "1950",
+  "1960",
 ];
 
 const dev_past_searches = require("../../../public/dummy_data/past-searches.json");
@@ -89,29 +122,24 @@ const dev_popular_searches = require("../../../public/dummy_data/popular-searche
 const dev_search_results = require("../../../public/dummy_data/search-results.json");
 const dev_decade_comparison_results = require("../../../public/dummy_data/decade-comparison-results.json");
 
-const SEARCH_PARAMS = [
-  'search_term',
-  'destination_term',
-  'start_date',
-  'end_date',
-];
+const SEARCH_PARAMS = ["search_term", "destination_term", "start_date", "end_date"];
 
 export default class Search extends Component {
   constructor(props) {
     super(props);
     const user = auth.currentUser;
     this.state = {
-      search_term: '',
-      destination_term: '',
+      search_term: "",
+      destination_term: "",
       start_date: DECADES[0],
       end_date: DECADES[DECADES.length - 1],
-      error: '',
+      error: "",
       loading: false,
       popular_searches: [],
       past_searches: [],
       search_results: {},
       decade_comparison_results: {},
-      visualizer_mode: 'bar',
+      visualizer_mode: "bar",
       isGuest: !user || !!user.isAnonymous,
     };
     this.barChartRef = React.createRef();
@@ -126,22 +154,29 @@ export default class Search extends Component {
     const sr = this.state.search_results;
     if (!sr?.vectors) return { labels: [], datasets: [] };
     return {
-      labels: sr.vectors.map(v => v.word),
-      datasets: [{ label: sr.search, data: sr.vectors.map(v => v.vector), backgroundColor: 'rgba(12,23,54,1)' }],
+      labels: sr.vectors.map((v) => v.word),
+      datasets: [{ label: sr.search, data: sr.vectors.map((v) => v.vector), backgroundColor: "rgba(12,23,54,1)" }],
     };
   }
   getMapData() {
     const sr = this.state.search_results;
-    if (!sr?.vectors) return [];
-    return sr.vectors.map(v => {
+    if (!sr?.vectors?.length) return [];
+    const rawValues = sr.vectors.map((v) => Number(v.vector) || 0);
+    const min = Math.min(...rawValues);
+    const max = Math.max(...rawValues);
+    const range = max - min || 1;
+
+    return sr.vectors.map((v) => {
+      const raw = Number(v.vector) || 0;
       return {
         text: v.word,
-        value: v.vector,
-      }
+        value: (raw - min) / range,
+        rawValue: raw,
+      };
     });
   }
   // New feature: decade comparison -- Added by Elise
-  getDecadeComparisionData(){
+  getDecadeComparisionData() {
     const sr = this.state.search_results;
     const dcr = this.state.decade_comparison_results;
     const decadeResults = Array.isArray(dcr?.results)
@@ -150,7 +185,7 @@ export default class Search extends Component {
         ? sr.results
         : Array.isArray(sr?.decade_comparison)
           ? sr.decade_comparison
-        : [];
+          : [];
 
     if (decadeResults.length === 0) {
       return { labels: [], datasets: [] };
@@ -158,28 +193,30 @@ export default class Search extends Component {
 
     const parsedResults = decadeResults
       .map((item) => ({
-        decade: String(item?.decade ?? ''),
-        similarity: Number(item?.similarity)
+        decade: String(item?.decade ?? ""),
+        similarity: Number(item?.similarity),
       }))
-      .filter((item) => item.decade !== '' && !Number.isNaN(item.similarity));
+      .filter((item) => item.decade !== "" && !Number.isNaN(item.similarity));
 
     parsedResults.sort((a, b) => {
-      const aNum = parseInt(a.decade.replace(/\D/g, ''), 10);
-      const bNum = parseInt(b.decade.replace(/\D/g, ''), 10);
+      const aNum = parseInt(a.decade.replace(/\D/g, ""), 10);
+      const bNum = parseInt(b.decade.replace(/\D/g, ""), 10);
       if (Number.isNaN(aNum) || Number.isNaN(bNum)) return a.decade.localeCompare(b.decade);
       return aNum - bNum;
     });
 
     return {
       labels: parsedResults.map((item) => item.decade),
-      datasets: [{
-        label: `${dcr.term_a || sr.term_a || this.state.search_term} vs ${dcr.term_b || sr.term_b || this.state.destination_term}`,
-        data: parsedResults.map((item) => item.similarity),
-        borderColor: 'rgba(12,23,54,1)',
-        backgroundColor: 'rgba(12,23,54,0.2)',
-        fill: false,
-        lineTension: 0.1,
-      }],
+      datasets: [
+        {
+          label: `${dcr.term_a || sr.term_a || this.state.search_term} vs ${dcr.term_b || sr.term_b || this.state.destination_term}`,
+          data: parsedResults.map((item) => item.similarity),
+          borderColor: "rgba(12,23,54,1)",
+          backgroundColor: "rgba(12,23,54,0.2)",
+          fill: false,
+          lineTension: 0.1,
+        },
+      ],
     };
   }
 
@@ -188,21 +225,22 @@ export default class Search extends Component {
     const chart = this.barChartRef.current.chartInstance; // Chart.js v2
     const image = chart.toBase64Image();
 
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = image;
-    link.download = this.state.search_results.search + '-bar-graph.png';
+    link.download = this.state.search_results.search + "-bar-graph.png";
     link.click();
   }
   downloadMap() {
     if (!this.wordCloudRef.current) return;
 
-    htmlToImage.toPng(this.wordCloudRef.current, {
-      pixelRatio: 2,
-      backgroundColor: '#fff', // optional
-    })
+    htmlToImage
+      .toPng(this.wordCloudRef.current, {
+        pixelRatio: 2,
+        backgroundColor: "#fff", // optional
+      })
       .then((dataUrl) => {
         const link = document.createElement("a");
-    link.download = this.state.search_results.search + '-word-web.png';
+        link.download = this.state.search_results.search + "-word-web.png";
         link.href = dataUrl;
         link.click();
       })
@@ -218,14 +256,15 @@ export default class Search extends Component {
   downloadDecadeComparison() {
     if (!this.decadeComparisonRef.current) return;
 
-    htmlToImage.toPng(this.decadeComparisonRef.current, {
-      pixelRatio: 2,
-      backgroundColor: '#fff',
-    })
+    htmlToImage
+      .toPng(this.decadeComparisonRef.current, {
+        pixelRatio: 2,
+        backgroundColor: "#fff",
+      })
       .then((dataUrl) => {
         const link = document.createElement("a");
         const fileNameBase = this.state.search_results.search || this.state.search_results.term_a || this.state.search_term;
-        link.download = fileNameBase + '-decade-comparison.png';
+        link.download = fileNameBase + "-decade-comparison.png";
         link.href = dataUrl;
         link.click();
       })
@@ -233,21 +272,17 @@ export default class Search extends Component {
   }
 
   downloadCSV() {
-    const hasDestinationTerm = this.state.destination_term.trim() !== '';
-    let csvContent = '';
-    let fileName = '';
+    const hasDestinationTerm = this.state.destination_term.trim() !== "";
+    let csvContent = "";
+    let fileName = "";
 
     if (hasDestinationTerm) {
       // Download decade comparison results
       const dcr = this.state.decade_comparison_results;
       const sr = this.state.search_results;
-      const decadeResults = Array.isArray(dcr?.results)
-        ? dcr.results
-        : Array.isArray(sr?.results)
-          ? sr.results
-          : [];
+      const decadeResults = Array.isArray(dcr?.results) ? dcr.results : Array.isArray(sr?.results) ? sr.results : [];
 
-      csvContent = 'Decade,Similarity\n';
+      csvContent = "Decade,Similarity\n";
       decadeResults.forEach((item) => {
         csvContent += `${item.decade},${item.similarity}\n`;
       });
@@ -260,7 +295,7 @@ export default class Search extends Component {
       const vectors = this.state.search_results.vectors || [];
       const top100 = vectors.slice(0, 100);
 
-      csvContent = 'Word,Similarity\n';
+      csvContent = "Word,Similarity\n";
       top100.forEach((v) => {
         csvContent += `${v.word},${v.vector}\n`;
       });
@@ -269,16 +304,16 @@ export default class Search extends Component {
       fileName = `${searchTerm}-top-results.csv`;
     }
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
     link.download = fileName;
     link.click();
     URL.revokeObjectURL(url);
   }
 
-   componentDidMount() {
+  componentDidMount() {
     this.getSearches("popular");
     this.authUnsubscribe = onAuthStateChanged(auth, (user) => {
       const isGuest = this.isGuestUser(user);
@@ -293,10 +328,10 @@ export default class Search extends Component {
     });
 
     this.getQueryFromUrl();
-    window.addEventListener('hashchange', this.getQueryFromUrl);
+    window.addEventListener("hashchange", this.getQueryFromUrl);
   }
   componentWillUnmount() {
-    window.removeEventListener('hashchange', this.getQueryFromUrl);
+    window.removeEventListener("hashchange", this.getQueryFromUrl);
     if (this.authUnsubscribe) {
       this.authUnsubscribe();
     }
@@ -307,25 +342,25 @@ export default class Search extends Component {
     past_searches: dev_past_searches,
     popular_searches: dev_popular_searches,
     search_results: dev_search_results,
-    decade_comparison_results: dev_decade_comparison_results
-  }
+    decade_comparison_results: dev_decade_comparison_results,
+  };
   devGlobals = {
-    username: 'test-user',
-  }
+    username: "test-user",
+  };
 
   getQueryFromUrl = () => {
     const hash = window.location.hash;
-    const queryString = hash.split('?')[1] || '';
+    const queryString = hash.split("?")[1] || "";
 
     const params = new URLSearchParams(queryString);
 
     let search = false;
     SEARCH_PARAMS.forEach((param, index) => {
-      let value = params.get(param) ?? '';
+      let value = params.get(param) ?? "";
 
       // Cap the decades
-      if (param === 'start_date' && !value) value = DECADES[0];
-      if (param === 'end_date' && !value) value = DECADES[DECADES.length - 1];
+      if (param === "start_date" && !value) value = DECADES[0];
+      if (param === "end_date" && !value) value = DECADES[DECADES.length - 1];
 
       if (value !== this.state[param]) {
         this.setState({ [param]: value }, () => {
@@ -334,27 +369,27 @@ export default class Search extends Component {
       }
     });
     if (search) {
-      console.log('search');
+      console.log("search");
       this.handleSubmit();
-    }else {
+    } else {
       this.setState({ search_results: {}, decade_comparison_results: {} });
     }
-  }
+  };
 
   updateQueryInUrl = () => {
-    const hash = window.location.hash.split('?')[0]; // "#/search"
+    const hash = window.location.hash.split("?")[0]; // "#/search"
 
-    const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
+    const params = new URLSearchParams(window.location.hash.split("?")[1] || "");
 
     SEARCH_PARAMS.forEach((param) => {
       if (!params.get(param) || params.get(param) !== this.state[param]) {
         params.set(param, this.state[param]);
       }
-    })
+    });
 
     const newHash = `${hash}?${params.toString()}`;
 
-    window.history.replaceState(null, '', newHash);
+    window.history.replaceState(null, "", newHash);
   };
 
   handleSubmit = async (e) => {
@@ -365,34 +400,32 @@ export default class Search extends Component {
     if (this.devMode) {
       this.setState({
         search_results: this.devData.search_results.results,
-        decade_comparison_results: this.state.destination_term.trim() !== ''
-          ? this.devData.decade_comparison_results
-          : {},
+        decade_comparison_results: this.state.destination_term.trim() !== "" ? this.devData.decade_comparison_results : {},
         loading: false,
       });
       return;
     }
 
-    if (e && typeof e.preventDefault === 'function') {
+    if (e && typeof e.preventDefault === "function") {
       e.preventDefault();
     }
-    this.setState({ error: '', loading: true });
+    this.setState({ error: "", loading: true });
 
     try {
-      const response = await fetch('/api/query', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/query", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           query_word: this.state.search_term,
           destination_word: this.state.destination_term,
           start_year: Number(this.state.start_date),
           end_year: Number(this.state.end_date),
           clean_results: true,
-        })
+        }),
       });
 
       const data = await response.json();
-      console.log('API response:', data);
+      console.log("API response:", data);
       if (response.ok) {
         this.setState({
           search_results: this.mapApiResultsToVectors(data),
@@ -403,7 +436,7 @@ export default class Search extends Component {
         // Log search to Firebase database for authenticated users
         const user = auth.currentUser;
         if (user && !user.isAnonymous) {
-          const searchedWord = String(this.state.search_term || '').trim();
+          const searchedWord = String(this.state.search_term || "").trim();
 
           if (searchedWord) {
             this.setState((prevState) => {
@@ -412,65 +445,57 @@ export default class Search extends Component {
                 startYear: Number(this.state.start_date),
                 endYear: Number(this.state.end_date),
               };
-              const nextPastSearches = [
-                newSearchObj,
-                ...prevState.past_searches.filter((item) => item.word !== searchedWord),
-              ].slice(0, 5);
+              const nextPastSearches = [newSearchObj, ...prevState.past_searches.filter((item) => item.word !== searchedWord)].slice(0, 5);
 
               return { past_searches: nextPastSearches };
             });
           }
 
           try {
-            await addSearchToDatabase(
-              user.uid,
-              this.state.search_term,
-              Number(this.state.start_date),
-              Number(this.state.end_date)
-            );
+            await addSearchToDatabase(user.uid, this.state.search_term, Number(this.state.start_date), Number(this.state.end_date));
 
             await this.getSearches("past", searchedWord);
           } catch (dbErr) {
-            console.error('Error logging search to database:', dbErr);
+            console.error("Error logging search to database:", dbErr);
             // Don't show error to user - search was successful
           }
         }
       } else {
         this.setState({
-          error: data.message || 'Word not in vocabulary. Please try again with a different word or adjust the date range.',
-          loading: false
+          error: data.message || "Word not in vocabulary. Please try again with a different word or adjust the date range.",
+          loading: false,
         });
       }
     } catch (err) {
       this.setState({
-        error: 'Network error. Please try again later.',
-        loading: false
+        error: "Network error. Please try again later.",
+        loading: false,
       });
     }
-  }
+  };
 
   searchesMap = {
     popular: {
       title: "Popular",
-      apiCall: "getPopularSearches"
+      apiCall: "getPopularSearches",
     },
     past: {
       title: "Past",
-      apiCall: "getPastSearches"
+      apiCall: "getPastSearches",
     },
-  }
+  };
 
   mapApiResultsToVectors = (apiResults) => {
     return {
       search: apiResults.query,
-      vectors: (apiResults.results || []).map(r => ({
+      vectors: (apiResults.results || []).map((r) => ({
         word: r.word,
-        vector: r.weighted_similarity
-      }))
+        vector: r.weighted_similarity,
+      })),
     };
   };
 
-  getSearches = async (type, prependWord = '') => {
+  getSearches = async (type, prependWord = "") => {
     if (this.devMode) {
       this.setState({ [type + "_searches"]: this.devData[type + "_searches"].searches });
       return;
@@ -479,18 +504,18 @@ export default class Search extends Component {
     try {
       let results = [];
 
-      if (type === 'popular') {
+      if (type === "popular") {
         // Get popular searches from Firebase (keep full objects with count)
         const popularData = await getPopularSearches();
         results = popularData;
-      } else if (type === 'past') {
+      } else if (type === "past") {
         // Get past searches for current user from Firebase (keep full objects with decades)
         const user = auth.currentUser;
         if (user && !user.isAnonymous) {
           const pastData = await getPastSearches(user.uid);
           results = pastData;
 
-          const normalizedPrependWord = String(prependWord || '').trim();
+          const normalizedPrependWord = String(prependWord || "").trim();
           if (normalizedPrependWord) {
             const prependItem = results.find((item) => item.word === normalizedPrependWord);
             const otherItems = results.filter((item) => item.word !== normalizedPrependWord);
@@ -504,14 +529,14 @@ export default class Search extends Component {
       console.error(`Error fetching ${type} searches:`, err);
       this.setState({
         error: `Failed to get ${type} searches. Please try again.`,
-        loading: false
+        loading: false,
       });
     }
-  }
+  };
 
   scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   searches = (type) => {
     const title = this.searchesMap[type].title + " Searches";
@@ -525,12 +550,12 @@ export default class Search extends Component {
             let startDecade = this.state.start_date;
             let endDecade = this.state.end_date;
 
-            if (type === 'past' && item.startYear && item.endYear) {
+            if (type === "past" && item.startYear && item.endYear) {
               startDecade = String(item.startYear);
               endDecade = String(item.endYear);
-            } else if (type === 'popular') {
-              startDecade = '1790';
-              endDecade = '1960';
+            } else if (type === "popular") {
+              startDecade = "1790";
+              endDecade = "1960";
             }
 
             return (
@@ -547,22 +572,24 @@ export default class Search extends Component {
         </ul>
       </div>
     );
-  }
+  };
 
   results = () => {
-    const hasDestinationTerm = this.state.destination_term.trim() !== '';
+    const hasDestinationTerm = this.state.destination_term.trim() !== "";
     const decadeData = this.getDecadeComparisionData();
     const hasDecadeData = decadeData.labels.length > 0;
     const hasVectorData = Array.isArray(this.state.search_results.vectors) && this.state.search_results.vectors.length > 0;
     const resultTitle = this.state.search_results.search || this.state.search_results.term_a || this.state.search_term;
     return (
-      <div className='result-card results-wide' style={{ margin: '0 auto', padding: '24px', maxWidth: '1100px' }}>
-        <h4 className='searches-header'>Results: {resultTitle}</h4>
+      <div className="result-card results-wide" style={{ margin: "0 auto", padding: "24px", maxWidth: "1100px" }}>
+        <h4 className="searches-header">Results: {resultTitle}</h4>
 
         {/* Top 5 Results */}
-        <div style={{ marginTop: '10px' }}>
-          <h4 className='searches-header' style={{ fontSize: '1rem' }}>Top 5 Results</h4>
-          <ol className='searches-list'>
+        <div style={{ marginTop: "10px" }}>
+          <h4 className="searches-header" style={{ fontSize: "1rem" }}>
+            Top 5 Results
+          </h4>
+          <ol className="searches-list">
             {(this.state.search_results.vectors || []).slice(0, 5).map((result, index) => (
               <li key={index}>
                 <Link
@@ -576,91 +603,85 @@ export default class Search extends Component {
         </div>
 
         {/* Buttons (stacked) + Visualizer side by side */}
-        <div style={{ display: 'flex', gap: '16px', marginTop: '20px', alignItems: 'flex-start' }}>
+        <div style={{ display: "flex", gap: "16px", marginTop: "20px", alignItems: "flex-start" }}>
           {/* Stacked buttons */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flexShrink: 0, width: '160px' }}>
-            <button className='auth-button' onClick={() => this.setState({ visualizer_mode: 'bar' })} disabled={!hasVectorData}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px", flexShrink: 0, width: "160px" }}>
+            <button className="auth-button" onClick={() => this.setState({ visualizer_mode: "bar" })} disabled={!hasVectorData}>
               Bar graph
             </button>
-            <button className='auth-button' onClick={() => this.setState({ visualizer_mode: 'map' })} disabled={!hasVectorData}>
+            <button className="auth-button" onClick={() => this.setState({ visualizer_mode: "map" })} disabled={!hasVectorData}>
               Word web
             </button>
-            {hasDestinationTerm && hasDecadeData &&
-              <button className='auth-button' onClick={() => this.setState({ visualizer_mode: 'decade-comparison' })}>
+            {hasDestinationTerm && hasDecadeData && (
+              <button className="auth-button" onClick={() => this.setState({ visualizer_mode: "decade-comparison" })}>
                 Decade comparison
               </button>
-            }
+            )}
             {!this.state.isGuest && (
-              <button className='auth-button' onClick={() => {
-                if (this.state.visualizer_mode === 'bar') {
-                  this.downloadChart();
-                } else if (this.state.visualizer_mode === 'decade-comparison') {
-                  this.downloadDecadeComparison();
-                } else {
-                  this.downloadMap();
-                }
-              }}>
+              <button
+                className="auth-button"
+                onClick={() => {
+                  if (this.state.visualizer_mode === "bar") {
+                    this.downloadChart();
+                  } else if (this.state.visualizer_mode === "decade-comparison") {
+                    this.downloadDecadeComparison();
+                  } else {
+                    this.downloadMap();
+                  }
+                }}
+              >
                 Download Visuals
               </button>
             )}
             {!this.state.isGuest && (
-              <button className='auth-button' onClick={() => this.downloadCSV()}>
+              <button className="auth-button" onClick={() => this.downloadCSV()}>
                 Download CSV
               </button>
             )}
           </div>
 
           {/* Visualizer takes remaining width */}
-          <div style={{ flex: 1, minWidth: 0, paddingLeft: '16px' }}>
-            <h4 className='searches-header'>Visualizer</h4>
-            {this.state.visualizer_mode === 'bar' && hasVectorData &&
+          <div style={{ flex: 1, minWidth: 0, paddingLeft: "16px" }}>
+            <h4 className="searches-header">Visualizer</h4>
+            {this.state.visualizer_mode === "bar" && hasVectorData && (
               <div style={{ height: 480, minHeight: 380 }}>
                 <Bar ref={this.barChartRef} options={chartOptions} data={this.getBarData()} />
-              </div>}
-            {this.state.visualizer_mode === 'map' && hasVectorData &&
-              <div ref={this.wordCloudRef} style={{ height: 460, minHeight: 360 }}>
-                <WordCloud options={mapOptions.options} words={this.getMapData()} />
               </div>
-            }
-            {this.state.visualizer_mode === 'decade-comparison' && hasDestinationTerm && hasDecadeData &&
+            )}
+            {this.state.visualizer_mode === "map" && hasVectorData && (
+              <div ref={this.wordCloudRef} style={{ height: 460, minHeight: 360 }}>
+                <WordCloud options={mapOptions.options} callbacks={mapOptions.callbacks} words={this.getMapData()} />
+              </div>
+            )}
+            {this.state.visualizer_mode === "decade-comparison" && hasDestinationTerm && hasDecadeData && (
               <div ref={this.decadeComparisonRef} style={{ height: 480, minHeight: 380 }}>
                 <Line options={decadeComparisonOptions} data={decadeData} />
               </div>
-            }
+            )}
           </div>
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   searchChips = () => {
-    const resultTitle = this.state.search_results.search || this.state.search_results.term_a || '';
+    const resultTitle = this.state.search_results.search || this.state.search_results.term_a || "";
     return (
       <div>
-        {
-          Object.keys(this.state.search_results).length !== 0
-          && resultTitle !== ""
-          && this.results()
-        }
-        <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', justifyContent: 'center' }}>
-          {
-            !this.state.isGuest
-            && this.state.past_searches.length !== 0
-            && <div style={{ flex: '0 1 auto' }}>{this.searches('past')}</div>
-          }
-          <div style={{ flex: '0 1 auto' }}>{this.searches('popular')}</div>
+        {Object.keys(this.state.search_results).length !== 0 && resultTitle !== "" && this.results()}
+        <div style={{ display: "flex", gap: "24px", flexWrap: "wrap", justifyContent: "center" }}>
+          {!this.state.isGuest && this.state.past_searches.length !== 0 && <div style={{ flex: "0 1 auto" }}>{this.searches("past")}</div>}
+          <div style={{ flex: "0 1 auto" }}>{this.searches("popular")}</div>
         </div>
       </div>
     );
-  }
+  };
 
   render() {
-
     return (
       <div className="page-container">
         <NavBar />
         <div className="page-card">
-
           <h2 className="page-title">Search</h2>
 
           {this.state.error && <div className="auth-error">{this.state.error}</div>}
@@ -678,18 +699,14 @@ export default class Search extends Component {
                   required
                   disabled={this.state.loading}
                 />
-                <button
-                  type="submit"
-                  className="search-button"
-                  disabled={this.state.loading}
-                >
+                <button type="submit" className="search-button" disabled={this.state.loading}>
                   <img src="/public/images/magnifyingGlass.png" alt="Search" />
                 </button>
               </div>
             </div>
 
             {/* Second row: start_date | end_date | destination_term */}
-            <div className="form-row" style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+            <div className="form-row" style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
               <div className="form-group" style={{ flex: 1 }}>
                 <label htmlFor="start_date">Start Decade</label>
                 <select
@@ -708,7 +725,9 @@ export default class Search extends Component {
                   disabled={this.state.loading}
                 >
                   {DECADES.map((d) => (
-                    <option key={`${d}s`} value={d}>{d}</option>
+                    <option key={`${d}s`} value={d}>
+                      {d}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -722,7 +741,9 @@ export default class Search extends Component {
                   disabled={this.state.loading}
                 >
                   {DECADES.filter((d) => DECADES.indexOf(d) >= DECADES.indexOf(this.state.start_date)).map((d) => (
-                    <option key={`${d}s`} value={d}>{d}</option>
+                    <option key={`${d}s`} value={d}>
+                      {d}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -742,7 +763,7 @@ export default class Search extends Component {
           </form>
 
           {this.state.loading && (
-            <div className="site-blurb loading-indicator" style={{ marginTop: '12px' }}>
+            <div className="site-blurb loading-indicator" style={{ marginTop: "12px" }}>
               <div className="loading-spinner" aria-hidden="true" />
               <h3 className="site-blurb-header">Searching...</h3>
               <p className="site-blurb-text">Fetching related terms and preparing visualizations.</p>
@@ -752,13 +773,15 @@ export default class Search extends Component {
           {/* Site blurb */}
           <div className="site-blurb">
             <h3 className="site-blurb-header">Explore semantic shifts across centuries</h3>
-            <p className="site-blurb-text">Discover how the meaning and relationships between words have evolved from the 1770s to the 1960s, powered by decade-specific language models trained on historical English texts.</p>
+            <p className="site-blurb-text">
+              Discover how the meaning and relationships between words have evolved from the 1790s to the 1960s, powered by decade-specific language
+              models trained on historical English texts.
+            </p>
           </div>
 
           <this.searchChips />
-
-        </div >
-      </div >
+        </div>
+      </div>
     );
   }
 }

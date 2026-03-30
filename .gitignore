@@ -9,4 +9,3 @@ __pycache__
 src/templates/public/bundle.js
 src/templates/__pycache__/__init__.cpython-313.pyc
 src/templates/public/bundle.js
-.gitignore
