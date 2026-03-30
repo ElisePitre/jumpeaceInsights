@@ -1,7 +1,6 @@
 import React, { Component, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import NavBar from './NavBar';
-import { MultiSelect } from 'react-multi-select-component';
 import { Bar, Line } from 'react-chartjs-2';
 import WordCloud from "react-wordcloud";
 import * as htmlToImage from "html-to-image";
@@ -68,7 +67,8 @@ const dev_decade_comparison_results = require("../../../public/dummy_data/decade
 const SEARCH_PARAMS = [
   'search_term',
   'destination_term',
-  'decades',
+  'start_date',
+  'end_date',
 ];
 
 export default class Search extends Component {
@@ -77,7 +77,8 @@ export default class Search extends Component {
     this.state = {
       search_term: '',
       destination_term: '',
-      decades: [],
+      start_date: new Date(),
+      end_date: new Date(),
       error: '',
       loading: false,
       popular_searches: [],
@@ -202,27 +203,17 @@ export default class Search extends Component {
       .catch((err) => console.error(err));
   }
 
-  decadeListToOptions(listString) {
-    const list = listString.split(",");
-    return list.map((v) => {
-      return {
-        label: v,
-        value: Number(v),
-      }
-    });
-  }
-
-  decadeOptionsToList(options) {
-    return options.map((v) => v.value);
-  }
-
   componentDidMount() {
     // Check if user is guest
     const user = auth.currentUser;
-    this.setState({ isGuest: !!user?.isAnonymous });
+    const isGuest = !!user?.isAnonymous;
+    this.setState({ isGuest});
 
     this.getSearches("popular");
-    this.getSearches("past");
+    
+    if (!isGuest) {
+      this.getSearches("past");
+    }
     this.getQueryFromUrl();
     window.addEventListener('hashchange', this.getQueryFromUrl);
   }
@@ -252,13 +243,9 @@ export default class Search extends Component {
       console.log(params.get(param), index);
       if (params.get(param) !== this.state[param]) {
         this.setState({
-          [param]: params.get(param) ? 
-            (Array.isArray(this.state[param]) ? 
-              this.decadeListToOptions(params.get(param)) : 
-              params.get(param)) : 
-            (Array.isArray(this.state[param]) ? [] : '')
+          [param]: params.get(param) ?? ''
         }, () => {
-          if (!['', []].includes(this.state[param])) {
+          if (this.state[param] !== '') {
               search = true;
           }
         })
@@ -279,10 +266,7 @@ export default class Search extends Component {
 
     SEARCH_PARAMS.forEach((param) => {
       if (!params.get(param) || params.get(param) !== this.state[param]) {
-        params.set(param, Array.isArray(this.state[param]) ?
-          this.decadeOptionsToList(this.state[param]) :
-          this.state[param]
-        );
+        params.set(param, this.state[param]);
       }
     })
 
@@ -297,11 +281,6 @@ export default class Search extends Component {
     }
 
     if (this.devMode) {
-      console.log(JSON.parse(JSON.stringify({
-        search_term: this.state.search_term,
-        destination_term: this.state.destination_term,
-        decades: this.decadeOptionsToList(this.state.decades),
-      })));
       this.setState({
         search_results: this.devData.search_results.results,
         decade_comparison_results: this.state.destination_term.trim() !== ''
@@ -321,7 +300,8 @@ export default class Search extends Component {
         body: JSON.stringify({
           search_term: this.state.search_term,
           destination_term: this.state.destination_term,
-          decades: this.decadeOptionsToList(this.state.decades),
+          start_date: this.state.start_date,
+          end_date: this.state.end_date,
         })
       });
 
@@ -502,7 +482,7 @@ export default class Search extends Component {
           && this.results()
         }
         {
-          this.devGlobals.username !== 'guest'
+          !this.state.isGuest
           && this.state.past_searches.length !== 0
           && this.searches('past')
         }
@@ -512,15 +492,6 @@ export default class Search extends Component {
   }
 
   render() {
-    const decadeOptions = Array.from(
-      { length: Math.floor((1960 - 1770) / 10) + 1 },
-      (_, i) => {
-        return {
-          label: (1770 + i * 10).toString(),
-          value: 1770 + i * 10
-        }
-      } 
-    );
 
     return (
       <div className="page-container">
@@ -558,21 +529,25 @@ export default class Search extends Component {
               </div>
             </div>
 
-            {/* Second row: decades | destination_term */}
+            {/* Second row: start_date | end_date | destination_term */}
             <div className="form-row" style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
               <div className="form-group" style={{ flex: 1 }}>
-                <MultiSelect
-                  id="decades_term"
-                  value={this.state.decades}
-                  options={decadeOptions}
-                  onChange={(e) => this.setState({ decades: e })}
-                  labelledBy='Select'
-                  valueRenderer={(selected, _options) => {
-                    if (selected.length === 0) return "Select Decades";
-                    if (selected.length === 1) return "1 Decade Selected";
-                    if (selected.length === _options.length) return "All Decades Selected";
-                    return `${selected.length} Decades Selected`;
-                  }}
+                <input
+                  type="date"
+                  id="start_date"
+                  value={this.state.start_date}
+                  onChange={(e) => this.setState({ start_date: e.target.value })}
+                  disabled={this.state.loading}
+                />
+              </div>
+
+              <div className="form-group" style={{ flex: 1 }}>
+                <input
+                  type="date"
+                  id="end_date"
+                  value={this.state.end_date}
+                  onChange={(e) => this.setState({ end_date: e.target.value })}
+                  disabled={this.state.loading}
                 />
               </div>
 
@@ -603,4 +578,3 @@ export default class Search extends Component {
     );
   }
 }
-

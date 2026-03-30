@@ -126,7 +126,7 @@ class Account extends Component {
   refreshAuthUser = async (showSuccess = false) => {
     const user = auth.currentUser;
     if (!user) return;
-
+    
     await user.reload();
     const freshUser = auth.currentUser;
     const isGuest = !!freshUser && (freshUser.isAnonymous || !freshUser.email);
