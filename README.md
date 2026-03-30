@@ -61,3 +61,22 @@
 
 ## 1.4 Web browser: Access Website
 1. Go to `localhost:5000`
+
+# 2. Firebase Setup (First Time on a New Computer)
+
+If a teammate is running this project on their computer for the first time, they should do this once from the project root.
+
+## 2.1 Login to Firebase CLI
+1. run `firebase login`
+2. run `firebase use jumppeace-7c331`
+
+## 2.2 Generate Data Connect SDK
+1. run `firebase dataconnect:sdk:generate`
+
+## 2.3 Deploy Data Connect (only when schema/query files changed)
+1. run `firebase deploy --only dataconnect`
+
+## 2.4 Notes
+1. `firebase login` is required per machine for Firebase CLI commands.
+2. `firebase deploy --only dataconnect` is not needed every run; only after Data Connect schema/connector updates.
+3. App users may still need to sign in inside the app for user-protected queries.
