@@ -5,6 +5,7 @@ import { Bar, Line } from 'react-chartjs-2';
 import WordCloud from "react-wordcloud";
 import * as htmlToImage from "html-to-image";
 import { auth } from '../firebase/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 export const chartOptions = {
   responsive: true,
   legend: false,
@@ -80,6 +81,7 @@ const SEARCH_PARAMS = [
 export default class Search extends Component {
   constructor(props) {
     super(props);
+    const user = auth.currentUser;
     this.state = {
       search_term: '',
       destination_term: '',
@@ -92,12 +94,15 @@ export default class Search extends Component {
       search_results: {},
       decade_comparison_results: {},
       visualizer_mode: 'bar',
-      isGuest: false, // track guest status
+      isGuest: !user || !!user.isAnonymous,
     };
     this.barChartRef = React.createRef();
     this.wordCloudRef = React.createRef();
     this.decadeComparisonRef = React.createRef();
+    this.authUnsubscribe = null;
   }
+
+  isGuestUser = (user) => !user || !!user.isAnonymous;
 
   getBarData() {
     const sr = this.state.search_results;
@@ -209,22 +214,28 @@ export default class Search extends Component {
       .catch((err) => console.error(err));
   }
 
-  componentDidMount() {
-    // Check if user is guest
-    const user = auth.currentUser;
-    const isGuest = !!user?.isAnonymous;
-    this.setState({ isGuest});
-
+   componentDidMount() {
     this.getSearches("popular");
-    
-    if (!isGuest) {
-      this.getSearches("past");
-    }
+    this.authUnsubscribe = onAuthStateChanged(auth, (user) => {
+      const isGuest = this.isGuestUser(user);
+
+      this.setState({ isGuest }, () => {
+        if (isGuest) {
+          this.setState({ past_searches: [] });
+        } else {
+          this.getSearches("past");
+        }
+      });
+    });
+
     this.getQueryFromUrl();
     window.addEventListener('hashchange', this.getQueryFromUrl);
   }
   componentWillUnmount() {
     window.removeEventListener('hashchange', this.getQueryFromUrl);
+    if (this.authUnsubscribe) {
+      this.authUnsubscribe();
+    }
   }
 
   devMode = true;
