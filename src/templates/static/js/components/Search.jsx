@@ -407,9 +407,14 @@ export default class Search extends Component {
 
           if (searchedWord) {
             this.setState((prevState) => {
+              const newSearchObj = {
+                word: searchedWord,
+                startYear: Number(this.state.start_date),
+                endYear: Number(this.state.end_date),
+              };
               const nextPastSearches = [
-                searchedWord,
-                ...prevState.past_searches.filter((word) => word !== searchedWord),
+                newSearchObj,
+                ...prevState.past_searches.filter((item) => item.word !== searchedWord),
               ].slice(0, 5);
 
               return { past_searches: nextPastSearches };
@@ -475,22 +480,21 @@ export default class Search extends Component {
       let results = [];
 
       if (type === 'popular') {
-        // Get popular searches from Firebase
+        // Get popular searches from Firebase (keep full objects with count)
         const popularData = await getPopularSearches();
-        results = popularData.map(item => item.word);
+        results = popularData;
       } else if (type === 'past') {
-        // Get past searches for current user from Firebase
+        // Get past searches for current user from Firebase (keep full objects with decades)
         const user = auth.currentUser;
         if (user && !user.isAnonymous) {
           const pastData = await getPastSearches(user.uid);
-          results = pastData.map(item => item.word);
+          results = pastData;
 
           const normalizedPrependWord = String(prependWord || '').trim();
           if (normalizedPrependWord) {
-            results = [
-              normalizedPrependWord,
-              ...results.filter((word) => word !== normalizedPrependWord),
-            ].slice(0, 5);
+            const prependItem = results.find((item) => item.word === normalizedPrependWord);
+            const otherItems = results.filter((item) => item.word !== normalizedPrependWord);
+            results = prependItem ? [prependItem, ...otherItems].slice(0, 5) : otherItems.slice(0, 5);
           }
         }
       }
@@ -505,6 +509,10 @@ export default class Search extends Component {
     }
   }
 
+  scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   searches = (type) => {
     const title = this.searchesMap[type].title + " Searches";
     return (
@@ -512,13 +520,30 @@ export default class Search extends Component {
         <h4 className="searches-header">{title}</h4>
 
         <ul className="searches-list">
-          {this.state[type + "_searches"].map((search, index) => (
-            <li key={index}>
-              <Link to={`/search?search_term=${encodeURIComponent(search)}`}>
-                {search}
-              </Link>
-            </li>
-          ))}
+          {this.state[type + "_searches"].map((item, index) => {
+            const searchWord = item.word;
+            let startDecade = this.state.start_date;
+            let endDecade = this.state.end_date;
+
+            if (type === 'past' && item.startYear && item.endYear) {
+              startDecade = String(item.startYear);
+              endDecade = String(item.endYear);
+            } else if (type === 'popular') {
+              startDecade = '1790';
+              endDecade = '1960';
+            }
+
+            return (
+              <li key={index}>
+                <Link
+                  to={`/search?search_term=${encodeURIComponent(searchWord)}&start_date=${encodeURIComponent(startDecade)}&end_date=${encodeURIComponent(endDecade)}`}
+                  onClick={this.scrollToTop}
+                >
+                  {searchWord}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </div>
     );
