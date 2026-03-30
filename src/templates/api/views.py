@@ -20,6 +20,9 @@ def processQuery():
     models = selectModels(data['start_year'], data['end_year'])
     results = calculate_weighted_average(data['query_word'], data['start_year'], data['end_year'], models)
 
+    if not results:
+        return jsonify({"error": "No results found. Please try a different word or adjust the date range."}), 404
+
     if data.get('clean_results'):
         results = clean_results(results)
 

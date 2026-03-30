@@ -417,7 +417,7 @@ export default class Search extends Component {
         }
       } else {
         this.setState({
-          error: data.message || 'Search failed. Please try again.',
+          error: data.message || 'Word not in vocabulary. Please try again with a different word or adjust the date range.',
           loading: false
         });
       }
@@ -692,6 +692,13 @@ export default class Search extends Component {
               </div>
             </div>
           </form>
+
+          {this.state.loading && (
+            <div className="site-blurb" style={{ marginTop: '12px' }}>
+              <h3 className="site-blurb-header">Searching...</h3>
+              <p className="site-blurb-text">Fetching related terms and preparing visualizations.</p>
+            </div>
+          )}
 
           {/* Site blurb */}
           <div className="site-blurb">
