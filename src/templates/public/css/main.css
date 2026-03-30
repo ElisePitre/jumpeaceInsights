@@ -711,6 +711,11 @@ h1, h2, h3, h4, h5, h6, p, ul {
   padding: var(--space-5);
 }
 
+/* Wider result card for search results with visualizers */
+.result-card.results-wide {
+  max-width: 1100px;
+}
+
 .searches-header {
   font-size: 1.2rem;
   font-weight: 800;

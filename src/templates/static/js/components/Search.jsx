@@ -411,78 +411,70 @@ export default class Search extends Component {
     const hasVectorData = Array.isArray(this.state.search_results.vectors) && this.state.search_results.vectors.length > 0;
     const resultTitle = this.state.search_results.search || this.state.search_results.term_a || this.state.search_term;
     return (
-      <div className='result-card'>
+      <div className='result-card results-wide'>
         <h4 className='searches-header'>Results: {resultTitle}</h4>
-        <div className="form-row" style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-          <div className="form-group" style={{ flex: 1 }}>
-            <div className='result-card'>
-              <h4 className='searches-header'>Top 5 Results</h4>
-              <ol className='searches-list'>
-                {(this.state.search_results.vectors || []).slice(0, 5).map((result, index) => (
-                  <li key={index}>
-                    <Link to={`/search?search_term=${encodeURIComponent(result.word)}`}>
-                      {result.word}
-                    </Link>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          </div>
-          <div className="form-group" style={{ flex: 2 }}>
-            <div className='result-card'>
-              <div className="form-row visualizer-buttons-container" style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                <div className="form-group" style={{ flex: 1 }}>
-                  <button className='auth-button' onClick={() => this.setState({ visualizer_mode: 'bar' })} disabled={!hasVectorData}>
-                    Bar graph
-                  </button>
-                </div>
-                <div className="form-group" style={{ flex: 1 }}>
-                  <button className='auth-button' onClick={() => this.setState({ visualizer_mode: 'map' })} disabled={!hasVectorData}>
-                    Word web
-                  </button>
-                </div>
-                {hasDestinationTerm && hasDecadeData &&
-                  <div className="form-group" style={{ flex: 1 }}>
-                    <button className='auth-button' onClick={() => this.setState({ visualizer_mode: 'decade-comparison' })}>
-                      Decade comparison
-                    </button>
-                  </div>
+
+        {/* Top 5 Results */}
+        <div style={{ marginTop: '10px' }}>
+          <h4 className='searches-header' style={{ fontSize: '1rem' }}>Top 5 Results</h4>
+          <ol className='searches-list'>
+            {(this.state.search_results.vectors || []).slice(0, 5).map((result, index) => (
+              <li key={index}>
+                <Link to={`/search?search_term=${encodeURIComponent(result.word)}`}>
+                  {result.word}
+                </Link>
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        {/* Buttons (stacked) + Visualizer side by side */}
+        <div style={{ display: 'flex', gap: '16px', marginTop: '20px', alignItems: 'flex-start' }}>
+          {/* Stacked buttons */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flexShrink: 0, width: '160px' }}>
+            <button className='auth-button' onClick={() => this.setState({ visualizer_mode: 'bar' })} disabled={!hasVectorData}>
+              Bar graph
+            </button>
+            <button className='auth-button' onClick={() => this.setState({ visualizer_mode: 'map' })} disabled={!hasVectorData}>
+              Word web
+            </button>
+            {hasDestinationTerm && hasDecadeData &&
+              <button className='auth-button' onClick={() => this.setState({ visualizer_mode: 'decade-comparison' })}>
+                Decade comparison
+              </button>
+            }
+            {!this.state.isGuest && (
+              <button className='auth-button' onClick={() => {
+                if (this.state.visualizer_mode === 'bar') {
+                  this.downloadChart();
+                } else if (this.state.visualizer_mode === 'decade-comparison') {
+                  this.downloadDecadeComparison();
+                } else {
+                  this.downloadMap();
                 }
+              }}>
+                Download
+              </button>
+            )}
+          </div>
 
-                {/* Hide Download button for guest users */}
-                {!this.state.isGuest && (
-                  <div className="form-group" style={{ flex: 1 }}>
-                    <button className='auth-button' onClick={() => {
-                      if (this.state.visualizer_mode === 'bar') {
-                        this.downloadChart();
-                      } else if (this.state.visualizer_mode === 'decade-comparison') {
-                        this.downloadDecadeComparison();
-                      } else {
-                        this.downloadMap();
-                      }
-                    }}>
-                      Download
-                    </button>
-                  </div>
-                )}
+          {/* Visualizer takes remaining width */}
+          <div style={{ flex: 1, minWidth: 0, paddingLeft: '16px' }}>
+            <h4 className='searches-header'>Visualizer</h4>
+            {this.state.visualizer_mode === 'bar' && hasVectorData &&
+              <div style={{ height: 400 }}>
+                <Bar ref={this.barChartRef} options={chartOptions} data={this.getBarData()} />
+              </div>}
+            {this.state.visualizer_mode === 'map' && hasVectorData &&
+              <div ref={this.wordCloudRef} style={{ height: 400 }}>
+                <WordCloud options={mapOptions.options} words={this.getMapData()} />
               </div>
-
-              <h4 className='searches-header'>Visualizers</h4>
-              {this.state.visualizer_mode === 'bar' && hasVectorData &&
-                <div style={{ height: 250 }}>
-                  <Bar ref={this.barChartRef} options={chartOptions} data={this.getBarData()} />
-                </div>}
-              {this.state.visualizer_mode === 'map' && hasVectorData &&
-                <div ref={this.wordCloudRef} style={{ height: 250 }}>
-                  <WordCloud options={mapOptions.options} words={this.getMapData()} />
-                </div>
-              }
-              {this.state.visualizer_mode === 'decade-comparison' && hasDestinationTerm && hasDecadeData &&
-                <div ref={this.decadeComparisonRef} style={{ height: 250 }}>
-                  <Line options={decadeComparisonOptions} data={decadeData} />
-                </div>
-              }
-            </div>
+            }
+            {this.state.visualizer_mode === 'decade-comparison' && hasDestinationTerm && hasDecadeData &&
+              <div ref={this.decadeComparisonRef} style={{ height: 400 }}>
+                <Line options={decadeComparisonOptions} data={decadeData} />
+              </div>
+            }
           </div>
         </div>
       </div>
