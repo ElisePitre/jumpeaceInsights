@@ -214,6 +214,52 @@ export default class Search extends Component {
       .catch((err) => console.error(err));
   }
 
+  downloadCSV() {
+    const hasDestinationTerm = this.state.destination_term.trim() !== '';
+    let csvContent = '';
+    let fileName = '';
+
+    if (hasDestinationTerm) {
+      // Download decade comparison results
+      const dcr = this.state.decade_comparison_results;
+      const sr = this.state.search_results;
+      const decadeResults = Array.isArray(dcr?.results)
+        ? dcr.results
+        : Array.isArray(sr?.results)
+          ? sr.results
+          : [];
+
+      csvContent = 'Decade,Similarity\n';
+      decadeResults.forEach((item) => {
+        csvContent += `${item.decade},${item.similarity}\n`;
+      });
+
+      const termA = dcr.term_a || sr.term_a || this.state.search_term;
+      const termB = dcr.term_b || sr.term_b || this.state.destination_term;
+      fileName = `${termA}-vs-${termB}-decade-comparison.csv`;
+    } else {
+      // Download top 100 search results
+      const vectors = this.state.search_results.vectors || [];
+      const top100 = vectors.slice(0, 100);
+
+      csvContent = 'Word,Similarity\n';
+      top100.forEach((v) => {
+        csvContent += `${v.word},${v.vector}\n`;
+      });
+
+      const searchTerm = this.state.search_results.search || this.state.search_term;
+      fileName = `${searchTerm}-top-results.csv`;
+    }
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
    componentDidMount() {
     this.getSearches("popular");
     this.authUnsubscribe = onAuthStateChanged(auth, (user) => {
@@ -453,7 +499,12 @@ export default class Search extends Component {
                   this.downloadMap();
                 }
               }}>
-                Download
+                Download Visuals
+              </button>
+            )}
+            {!this.state.isGuest && (
+              <button className='auth-button' onClick={() => this.downloadCSV()}>
+                Download CSV
               </button>
             )}
           </div>
