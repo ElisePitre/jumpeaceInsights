@@ -303,17 +303,18 @@ export default class Search extends Component {
 
     let search = false;
     SEARCH_PARAMS.forEach((param, index) => {
-      console.log(params.get(param), index);
-      if (params.get(param) !== this.state[param] && params.get(param) !== '') {
-        this.setState({
-          [param]: params.get(param) ?? ''
-        }, () => {
-          if (this.state[param] !== '') {
-              search = true;
-          }
-        })
+      let value = params.get(param) ?? '';
+
+      // Cap the decades
+      if (param === 'start_date' && !value) value = DECADES[0];
+      if (param === 'end_date' && !value) value = DECADES[DECADES.length - 1];
+
+      if (value !== this.state[param]) {
+        this.setState({ [param]: value }, () => {
+          search = true;
+        });
       }
-    })
+    });
     if (search) {
       console.log('search');
       this.handleSubmit();
@@ -357,7 +358,7 @@ export default class Search extends Component {
     this.setState({ error: '', loading: true });
 
     try {
-      const response = await fetch('http://localhost:3000/query', {
+      const response = await fetch('/api/query', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -371,13 +372,12 @@ export default class Search extends Component {
 
       const data = await response.json();
 
-      if (response.ok && data.success) {
+      if (response.ok) {
         this.setState({
-          search_results: data.results,
-          decade_comparison_results: data.decade_comparison_results || data.decadeComparisonResults || {}
-        })
+          search_results: this.mapApiResultsToVectors(data),
+          decade_comparison_results: data.decade_comparison_results || {}
+        });
       } else {
-
         this.setState({
           error: data.message || 'Search failed. Please try again.',
           loading: false
@@ -401,6 +401,17 @@ export default class Search extends Component {
       apiCall: "getPastSearches"
     },
   }
+
+  mapApiResultsToVectors = (apiResults) => {
+    return {
+      search: apiResults.query,
+      vectors: (apiResults.results || []).map(r => ({
+        word: r.word,
+        vector: r.weighted_similarity
+      }))
+    };
+  };
+
   getSearches = async (type) => {
     if (this.devMode) {
       this.setState({ [type + "_searches"]: this.devData[type + "_searches"].searches });
@@ -408,25 +419,25 @@ export default class Search extends Component {
     }
 
     try {
-      const response = await fetch('http://localhost:3000' + this.searchesMap[type].apiCall, {
-        method: 'POST',
+      const response = await fetch('/api/searchCount', {
+        method: 'GET',
         headers: { 'Content-Type': 'application/json' }
       });
 
       const data = await response.json();
 
-      if (response.ok && data.success) {
-        this.setState({ [type + "_searches"]: data.searches })
+      if (response.ok) {
+        const searches = data.results.map(item => item.word);
+        this.setState({ [type + "_searches"]: searches })
       } else {
-
         this.setState({
-          error: data.message || 'Failed to get popular searches.',
+          error: 'Failed to get searches',
           loading: false
         });
       }
     } catch (err) {
       this.setState({
-        error: 'Network error. Please try again later.',
+        error: 'Network error when pulling searches. Please try again later.',
         loading: false
       });
     }
