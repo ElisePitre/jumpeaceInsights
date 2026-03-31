@@ -63,14 +63,14 @@ Activate it:
 | Platform | Command |
 |----------|---------|
 | macOS / Linux | `source venv/bin/activate` |
-| Windows | `venv\Scripts\activate.bat` |
+| Windows | `venv\Scripts\activate` |
 
 ---
 
 ### 2 — Backend (Terminal 1)
 
 ```bash
-cd project-setup-jumpeace_g3/src
+cd project-setup-jumpeace_g3
 
 pip install -r requirements.txt   # install Python dependencies
 
