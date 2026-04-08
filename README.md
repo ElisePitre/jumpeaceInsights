@@ -56,6 +56,8 @@ project-setup-jumpeace_g3/
 
 ```bash
 python3 -m venv venv
+or
+python -m venv .venv
 ```
 
 Activate it:
@@ -73,6 +75,8 @@ Activate it:
 cd project-setup-jumpeace_g3
 
 pip install -r requirements.txt   # install Python dependencies
+
+cd src
 
 python3 run.py                    # start the Flask dev server
 ```
