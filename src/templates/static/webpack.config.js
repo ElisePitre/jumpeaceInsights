@@ -14,6 +14,7 @@ const config = {
   mainFields: ['browser', 'module', 'main'],  //LINES 14 - 15 to fix firebase/dataconnect issues
   alias: {
     'firebase/data-connect': resolve('./node_modules/firebase/data-connect/dist/esm/index.esm.js')
+  }
  },
  module: {
   rules: [
