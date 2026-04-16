@@ -35,7 +35,7 @@ def selectModels(startDecade, endDecade):
                 pass  # companion files missing, Gensim will handle it
             models[f"{curDecade}s"] = model_path
         except Exception as e:
-            print(f"Model not found for {curDecade}s: {e}")
+            log.warning("Model not found for %ss: %s", curDecade, e)
     return models
 
 # This function should load the model from the given path and return the word vectors
