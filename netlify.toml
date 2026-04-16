@@ -1,7 +1,7 @@
 [build]
   base = "src/templates/static"
-  command = "npm run build && cp index.html ../public/index.html"
-  publish = "../public"
+  command = "npm run build && rm -rf ../netlify-dist && mkdir -p ../netlify-dist/public && cp [index.html](http://_vscodecontentref_/3) [index.html](http://_vscodecontentref_/4) && cp -r ../public/. ../netlify-dist/public"
+  publish = "../netlify-dist"
 
 [build.environment]
   NODE_VERSION = "18"
