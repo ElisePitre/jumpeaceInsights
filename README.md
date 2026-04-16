@@ -155,3 +155,18 @@ firebase deploy --only dataconnect
 3. Open a pull request and request a review from at least one teammate.
 4. Document any meetings in `docs/meeting_notes.md`.
 5. Keep `design.md` up to date as requirements evolve.
+
+---
+
+## Netlify Deployment (Frontend) + Search API
+
+Authentication can work on Netlify while search fails if the Flask API is not reachable from the deployed frontend.
+
+1. Deploy the Flask backend from `src/` to a backend host (for example Render/Railway/Fly.io).
+2. Set Netlify environment variable `JUMPEACE_API_BASE_URL` to your backend URL (example: `https://your-backend.example.com`).
+3. Redeploy Netlify so it regenerates `public/api-config.js` with that URL.
+4. Ensure backend endpoint is available at `/api/query`.
+
+Notes:
+- Local development can continue using relative `/api/query` when `JUMPEACE_API_BASE_URL` is empty.
+- Backend CORS is enabled for `/api/*` to allow cross-origin requests from Netlify.

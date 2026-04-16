@@ -124,6 +124,26 @@ const dev_decade_comparison_results = require("../../../public/dummy_data/decade
 
 const SEARCH_PARAMS = ["search_term", "destination_term", "start_date", "end_date"];
 
+const getApiBaseUrl = () => {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  const base = String(window.JUMPEACE_API_BASE_URL || "").trim();
+  return base.replace(/\/+$/, "");
+};
+
+const buildApiUrl = (path) => {
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  const apiBaseUrl = getApiBaseUrl();
+
+  if (!apiBaseUrl) {
+    return normalizedPath;
+  }
+
+  return `${apiBaseUrl}${normalizedPath}`;
+};
+
 export default class Search extends Component {
   constructor(props) {
     super(props);
@@ -412,7 +432,7 @@ export default class Search extends Component {
     this.setState({ error: "", loading: true });
 
     try {
-      const response = await fetch("/api/query", {
+      const response = await fetch(buildApiUrl("/api/query"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -424,7 +444,7 @@ export default class Search extends Component {
         }),
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
       console.log("API response:", data);
       if (response.ok) {
         this.setState({
