@@ -1,0 +1,7 @@
+[build]
+  base = "src/templates/static"
+  command = "npm run build && cp index.html ../public/index.html"
+  publish = "../public"
+
+[build.environment]
+  NODE_VERSION = "18"
